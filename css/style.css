@@ -881,6 +881,55 @@ textarea {
     margin-top: 4px;
 }
 
+
+/* =========================================
+   COFFEE JOURNEY SECTION
+========================================= */
+
+.coffee-journey-section {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #24130d;
+}
+
+.coffee-journey-video,
+.coffee-journey-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.coffee-journey-video {
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* =========================================
+   IMAGE OVER THE VIDEO
+========================================= */
+
+.coffee-journey-overlay {
+    position: absolute;
+    inset: 0;
+    width: 45%;
+    height: 45%;
+    z-index: 2;
+    pointer-events: none;
+    padding-left:250px;
+    margin-top:5px;
+}
+
+    .coffee-journey-overlay img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        display: block;
+    }
+
 /* ========== 8. Cafe gallery + lightbox ========== */
 .gallery-copy {
     flex: 1;
