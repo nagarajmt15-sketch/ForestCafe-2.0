@@ -803,3 +803,22 @@
     }, { threshold: 0.15 });
     io.observe(hang);
 })();
+
+// Ensure `.reveal` triggers entrance on scroll and remains visible
+(function storyScrollReveals() {
+    var revealElements = document.querySelectorAll('.ad-block.reveal, .stay-hero-split.reveal');
+    if (!revealElements.length || !('IntersectionObserver' in window)) return;
+
+    var observer = new IntersectionObserver(function(entries, obs) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    revealElements.forEach(function(el) {
+        observer.observe(el);
+    });
+})();
