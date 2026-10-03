@@ -822,3 +822,136 @@
         observer.observe(el);
     });
 })();
+
+/* =========================================================
+   FARM SHOP CART DRAWER ENGINE
+========================================================= */
+(() => {
+    const navBtn = document.getElementById("navCartBtn");
+    const overlay = document.getElementById("cartDrawerOverlay");
+    const closeBtn = document.getElementById("cartDrawerClose");
+    const shopNowBtn = document.getElementById("cartShopNowBtn");
+    const badge = document.getElementById("navCartBadge");
+    const itemsContainer = document.getElementById("cartDrawerItems");
+    const emptyState = document.getElementById("cartEmptyState");
+    const totalCountEl = document.getElementById("cartTotalItemsCount");
+    const waOrderBtn = document.getElementById("cartWhatsAppOrderBtn");
+    const WA_NUMBER = "919444060619";
+
+    // In-memory cart state
+    let cart = [];
+
+    function openCart() {
+        if (!overlay) return;
+        overlay.classList.add("is-open");
+        overlay.setAttribute("aria-hidden", "false");
+        navBtn?.setAttribute("aria-expanded", "true");
+        document.body.classList.add("no-scroll");
+    }
+
+    function closeCart() {
+        if (!overlay) return;
+        overlay.classList.remove("is-open");
+        overlay.setAttribute("aria-hidden", "true");
+        navBtn?.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("no-scroll");
+    }
+
+    function updateCartUI() {
+        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+        if (badge) badge.textContent = String(totalItems);
+        if (totalCountEl) totalCountEl.textContent = `${totalItems} items`;
+
+        if (cart.length === 0) {
+            if (emptyState) emptyState.style.display = "flex";
+            const renderedRows = itemsContainer.querySelectorAll(".cart-item-row");
+            renderedRows.forEach(row => row.remove());
+            if (waOrderBtn) {
+                waOrderBtn.href = "#";
+                waOrderBtn.style.opacity = "0.5";
+                waOrderBtn.style.pointerEvents = "none";
+            }
+            return;
+        }
+
+        if (emptyState) emptyState.style.display = "none";
+        
+        // Render item rows
+        const rowsHtml = cart.map((item, index) => `
+            <div class="cart-item-row">
+                <img src="${item.img}" alt="${item.name}">
+                <div class="cart-item-info">
+                    <div class="cart-item-title">${item.name}</div>
+                    <div class="cart-item-meta">${item.variant ? item.variant + ' • ' : ''}Qty: ${item.qty}</div>
+                </div>
+                <button type="button" class="cart-item-remove" data-index="${index}" aria-label="Remove item">✕</button>
+            </div>
+        `).join("");
+
+        itemsContainer.innerHTML = rowsHtml;
+
+        // Wire remove buttons
+        itemsContainer.querySelectorAll(".cart-item-remove").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const idx = parseInt(btn.dataset.index, 10);
+                cart.splice(idx, 1);
+                updateCartUI();
+            });
+        });
+
+        // Build WhatsApp order URL
+        const lines = cart.map(item => `• ${item.name}${item.variant ? ' (' + item.variant + ')' : ''} × ${item.qty}`);
+        const waText = `Hi Forest Cafe! 🌿\n\nI would like to order the following from your Farm Shop:\n${lines.join('\n')}\n\nPlease confirm availability and total price. Thank you!`;
+        if (waOrderBtn) {
+            waOrderBtn.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`;
+            waOrderBtn.style.opacity = "1";
+            waOrderBtn.style.pointerEvents = "auto";
+        }
+    }
+
+    // Connect Product Modal "Buy on WhatsApp" button to also store into Cart
+    const pmBuyBtn = document.getElementById("pmBuy");
+    if (pmBuyBtn) {
+        pmBuyBtn.addEventListener("click", () => {
+            const titleEl = document.getElementById("pmTitle");
+            const imgEl = document.getElementById("pmImg");
+            const qtyInput = document.getElementById("pmQty");
+            const activeVariant = document.querySelector(".pm-variant-btn.is-selected");
+
+            if (titleEl && imgEl) {
+                const item = {
+                    name: titleEl.textContent.trim(),
+                    img: imgEl.getAttribute("src"),
+                    qty: parseInt(qtyInput?.value || "1", 10),
+                    variant: activeVariant ? activeVariant.textContent.trim() : null
+                };
+
+                const existing = cart.find(c => c.name === item.name && c.variant === item.variant);
+                if (existing) {
+                    existing.qty += item.qty;
+                } else {
+                    cart.push(item);
+                }
+                updateCartUI();
+            }
+        });
+    }
+
+    if (navBtn) navBtn.addEventListener("click", openCart);
+    if (closeBtn) closeBtn.addEventListener("click", closeCart);
+    if (shopNowBtn) shopNowBtn.addEventListener("click", closeCart);
+
+    if (overlay) {
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closeCart();
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && overlay?.classList.contains("is-open")) {
+            closeCart();
+        }
+    });
+
+    updateCartUI();
+})();
