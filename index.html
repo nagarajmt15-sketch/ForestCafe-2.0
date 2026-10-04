@@ -72,6 +72,10 @@
         <div class="nav-inner">
             <a aria-label="Forest Cafe home" class="brand" href="#top">
                 <img alt="Forest Cafe" class="brand-logo" src="logo.png" />
+                <div class="brand-text">
+                    <span class="brand-name">Forest Cafe</span>
+                    <span class="brand-sub">Kalrayan Hills</span>
+                </div>
             </a>
             <nav aria-label="Main">
                 <ul class="nav-links" id="navLinks">
@@ -85,16 +89,6 @@
                     <li><a href="#visit">Visit</a></li>
                 </ul>
             </nav>
-
-            <!-- Cart Icon Trigger Button -->
-            <button type="button" class="nav-cart-btn" id="navCartBtn" aria-label="Open Farm Shop Cart" aria-haspopup="dialog" aria-expanded="false">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                <span class="nav-cart-badge" id="navCartBadge">0</span>
-            </button>
         </div>
     </header>
     <!-- mobile drawer -->
@@ -553,9 +547,14 @@
             </div>
         </section>
         <!-- ============ RIBBON (STAY) ============ -->
-        <div aria-hidden="true" class="ribbon">
+        <div aria-hidden="true" class="ribbon ribbon--stay">
             <div class="ribbon-inner">
-                <img alt="" loading="lazy" src="images/rooms/item14.webp" />
+                <img 
+                    src="images/rooms/tiny_cot_ribbon_nature.png" 
+                    alt="Scenic mountain slopes and tiny cot architectural divider" 
+                    loading="lazy"
+                    class="stay-ribbon-graphic"
+                />
             </div>
         </div>
 
@@ -715,18 +714,16 @@
                  aria-hidden="true">
 
             <!-- =========================================================
-             HANDCRAFTED MINIONS PERCHED ON BLACKBOARD TOP EDGE
-        ========================================================== -->
+                 HANDCRAFTED HANGING MINION ON BLACKBOARD RIGHT RIM
+            ========================================================== -->
             <div class="ad-minion-perch-layer" aria-hidden="true">
-                <!-- Left Minion: Hanging Legs & Trailing Vines -->
-                <div class="perched-minion perched-minion--left">
-                    <img class="minion-decor-leaf leaf--left" src="images/minion/leaf-left.png" alt="" onerror="this.style.display='none'">
-                    <img class="minion-character-img" src="images/minion/single-minion.png" alt="Handmade tire minion">
-                </div>
-
-                <!-- Right Hanging Leaf Decoration -->
+                <!-- Right Suspended Rope & Trailing Ivy Minion -->
                 <div class="perched-minion perched-minion--right">
-                    <img class="minion-decor-leaf leaf--right" src="images/minion/leaf-right.png" alt="Hanging forest leaf decoration" onerror="this.style.display='none'">
+                    <img class="minion-hanging-img" 
+                         src="images/minion/hanging-minion.png" 
+                         alt="Handcrafted hanging minion planter with trailing vines" 
+                         loading="lazy"
+                         onerror="this.src='images/minion/hanging minion.png';">
                 </div>
             </div>
 
@@ -1025,62 +1022,92 @@
     <!-- ============ FOOTER ============ -->
     <footer class="footer">
         <div class="footer-grid">
+            <!-- Brand & Warm Invitation Column -->
             <div class="footer-col footer-col--brand">
-                <a class="brand" href="#top">
-                    <img alt="Forest Cafe" class="brand-logo" src="logo.png" />
+                <a class="footer-brand" href="#top" aria-label="Back to top">
+                    <img alt="Forest Cafe" class="footer-brand-logo" src="logo.png" />
+                    <div class="footer-brand-text">
+                        <span class="footer-brand-name">Forest Cafe</span>
+                        <span class="footer-brand-sub">Kalrayan Hills</span>
+                    </div>
                 </a>
-                <p class="footer-about">A cosy stop for coffee, farm produce and a place to sleep, tucked into the Kalvarayan Hills.</p>
-                <div class="socials">
-                    <a aria-label="Instagram" data-cms="instaLink" href="https://www.instagram.com/forestcafe.khills?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener">
-                        <svg viewbox="0 0 24 24">
-                            <path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.7.1 4.8s0 3.6-.1 4.9c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.7-.1-4.9s0-3.5.1-4.8C2.3 4 3.9 2.4 7.1 2.3 8.4 2.2 8.8 2.2 12 2.2zm0 5.1A4.7 4.7 0 1 0 16.7 12 4.7 4.7 0 0 0 12 7.3zm0 7.7A3 3 0 1 1 15 12a3 3 0 0 1-3 3zm4.9-9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1z"></path>
-                        </svg>
-                    </a>
-                    <a aria-label="Facebook" href="#">
-                        <svg viewbox="0 0 24 24">
-                            <path d="M13.5 22v-8h2.7l.4-3.1h-3.1V8.9c0-.9.25-1.5 1.55-1.5h1.65V4.6A22 22 0 0 0 14.3 4.5c-2.4 0-4 1.45-4 4.1v2.3H7.6V14h2.7v8z"></path>
-                        </svg>
-                    </a>
-                    <a aria-label="WhatsApp" data-cms="waLink" href="https://wa.me/919444060619?text=Hi%20Forest%20Cafe%2C%20I%20want%20to%20know%20more%20about%20your%20stay%20and%20cafe." target="_blank" rel="noopener">
-                        <svg viewbox="0 0 24 24">
-                            <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2s-1.1.3-3.6-.8-4-3.6-4.2-3.8-1.2-1.6-1.2-3 .8-2.1 1-2.4.5-.3.7-.3h.6c.2 0 .4 0 .6.5s.8 2 .9 2.1a.5.5 0 0 1 0 .5 7 7 0 0 1-.5.7c-.2.2-.4.4-.2.7a9.6 9.6 0 0 0 1.7 2.1 8.4 8.4 0 0 0 2.5 1.5c.3.2.5.1.7-.1s.8-.9 1-1.2.4-.2.7-.1 1.9.9 2.2 1.1.5.3.6.4a2 2 0 0 1-.1.9z"></path>
-                        </svg>
-                    </a>
-                    <a aria-label="YouTube" href="#">
-                        <svg viewbox="0 0 24 24">
-                            <path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4a2.5 2.5 0 0 0-1.8 1.8A26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z"></path>
-                        </svg>
-                    </a>
+                <p class="footer-about">
+                    Where the mountain air slows you down, fresh estate coffee warms your hands, and peaceful hill mornings linger a little longer. Come take a breath under the trees.
+                </p>
+                <div class="footer-social-wrap">
+                    <span class="footer-social-label">Follow our hill life &amp; updates:</span>
+                    <div class="socials">
+                        <a aria-label="Instagram" data-cms="instaLink" href="https://www.instagram.com/forestcafe.khills?utm_source=ig_web_button_share_sheet&amp;stkn=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.7.1 4.8s0 3.6-.1 4.9c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.7-.1-4.9s0-3.5.1-4.8C2.3 4 3.9 2.4 7.1 2.3 8.4 2.2 8.8 2.2 12 2.2zm0 5.1A4.7 4.7 0 1 0 16.7 12 4.7 4.7 0 0 0 12 7.3zm0 7.7A3 3 0 1 1 15 12a3 3 0 0 1-3 3zm4.9-9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1z"></path>
+                            </svg>
+                        </a>
+                        <a aria-label="Facebook" href="#">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M13.5 22v-8h2.7l.4-3.1h-3.1V8.9c0-.9.25-1.5 1.55-1.5h1.65V4.6A22 22 0 0 0 14.3 4.5c-2.4 0-4 1.45-4 4.1v2.3H7.6V14h2.7v8z"></path>
+                            </svg>
+                        </a>
+                        <a aria-label="WhatsApp" data-cms="waLink" href="https://wa.me/919444060619?text=Hi%20Forest%20Cafe%2C%20I%20want%20to%20know%20more%20about%20your%20stay%20and%20cafe." target="_blank" rel="noopener">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2s-1.1.3-3.6-.8-4-3.6-4.2-3.8-1.2-1.6-1.2-3 .8-2.1 1-2.4.5-.3.7-.3h.6c.2 0 .4 0 .6.5s.8 2 .9 2.1a.5.5 0 0 1 0 .5 7 7 0 0 1-.5.7c-.2.2-.4.4-.2.7a9.6 9.6 0 0 0 1.7 2.1 8.4 8.4 0 0 0 2.5 1.5c.3.2.5.1.7-.1s.8-.9 1-1.2.4-.2.7-.1 1.9.9 2.2 1.1.5.3.6.4a2 2 0 0 1-.1.9z"></path>
+                            </svg>
+                        </a>
+                        <a aria-label="YouTube" href="#">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4a2.5 2.5 0 0 0-1.8 1.8A26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z"></path>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </div>
+
+            <!-- Visit Information -->
             <div class="footer-col">
-                <h4>Visit</h4>
+                <h4 class="footer-heading">VISIT</h4>
                 <div class="footer-contact">
-                    <p>No 367/2, servaiyattu, vellimalai road, karumandurai,<br />kalvarayan hills, salem-636 138.</p>
-                    <p>ph no: <a data-cms="phoneLink" data-cms-text="phoneText" href="tel:+919444060619">9444060619</a></p>
-                    <p>e-mail: <a data-cms="emailLink" data-cms-text="emailText" href="mailto:forestcafe.khilla@gmail.com">forestcafe.khilla@gmail.com</a></p>
+                    <p>No 367/2, Servaiyattu, Vellimalai Road, Karumandurai,<br />Kalvarayan Hills, Salem – 636 138.</p>
+                    <p class="footer-contact-highlight">
+                        <span>ph:</span> <a data-cms="phoneLink" data-cms-text="phoneText" href="tel:+919444060619">+91 94440 60619</a>
+                    </p>
+                    <p class="footer-contact-highlight">
+                        <span>e-mail:</span> <a data-cms="emailLink" data-cms-text="emailText" href="mailto:forestcafe.khilla@gmail.com">forestcafe.khilla@gmail.com</a>
+                    </p>
                 </div>
             </div>
+
+            <!-- Navigation Links -->
             <div class="footer-col">
-                <h4>Explore</h4>
-                <ul>
+                <h4 class="footer-heading">EXPLORE</h4>
+                <ul class="footer-nav-list">
+                    <li><a href="#top">Home</a></li>
                     <li><a href="#about">About us</a></li>
                     <li><a href="#cafe">The cafe</a></li>
                     <li><a href="#menu">Menu</a></li>
                     <li><a href="#shop">Farm shop</a></li>
-                    <li><a href="#stay">Rooms</a></li>
+                    <li><a href="#stay">Rooms &amp; Stay</a></li>
+                    <li><a href="#art-director">Our Story</a></li>
                     <li><a href="#reviews">Reviews</a></li>
                     <li><a href="#visit">How to get here</a></li>
                 </ul>
             </div>
         </div>
-        <div class="footer-bottom">
-            <span>© <span id="year">2026</span> Forest Cafe, Kalrayan Hills. All rights reserved.</span>
-            <nav aria-label="Legal">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#visit">Contact</a>
-            </nav>
+
+        <!-- Designer Watermark & Copyright -->
+        <div class="footer-bottom-wrap">
+            <div class="footer-credit">
+                <span>Designed with <span class="heart-pulse">♥</span> by <strong>Code Sketchers</strong></span>
+                <span class="footer-credit-sep">·</span>
+                <a href="tel:8248853636" class="footer-credit-phone">8248853636</a>
+            </div>
+
+            <div class="footer-bottom">
+                <span>© <span id="year">2026</span> Forest Cafe, Kalrayan Hills. All rights reserved.</span>
+                <nav aria-label="Footer Quick Links">
+                    <a href="#about">About</a>
+                    <a href="#visit">Contact &amp; Location</a>
+                    <a href="https://wa.me/919444060619" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                </nav>
+            </div>
         </div>
     </footer>
 
@@ -1128,41 +1155,6 @@
                 <p class="pm-note">Your order message opens in WhatsApp — we'll confirm price and availability.</p>
             </div>
         </div>
-    </div>
-
-    <!-- ============ SLIDE-OVER CART DRAWER ============ -->
-    <div class="cart-drawer-overlay" id="cartDrawerOverlay" aria-hidden="true">
-        <aside class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle">
-            <div class="cart-drawer__header">
-                <div class="cart-drawer__title-wrap">
-                    <span class="cart-drawer__eyebrow">Hill Farm Fresh</span>
-                    <h3 id="cartDrawerTitle" class="cart-drawer__title">Your Farm Basket</h3>
-                </div>
-                <button type="button" class="cart-drawer__close" id="cartDrawerClose" aria-label="Close cart">×</button>
-            </div>
-
-            <div class="cart-drawer__body" id="cartDrawerItems">
-                <!-- Dynamically populated or empty slate fallback -->
-                <div class="cart-drawer__empty" id="cartEmptyState">
-                    <span class="cart-empty-icon">🧺</span>
-                    <p>Your basket is currently empty.</p>
-                    <a class="btn btn--honey btn--sm" href="#shop" id="cartShopNowBtn">Explore Farm Shop</a>
-                </div>
-            </div>
-
-            <div class="cart-drawer__footer" id="cartDrawerFooter">
-                <div class="cart-drawer__summary">
-                    <span>Total Items</span>
-                    <strong id="cartTotalItemsCount">0 items</strong>
-                </div>
-                <a class="btn btn--honey cart-drawer__whatsapp-btn" id="cartWhatsAppOrderBtn" href="#" target="_blank" rel="noopener">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2s-1.1.3-3.6-.8-4-3.6-4.2-3.8-1.2-1.6-1.2-3 .8-2.1 1-2.4.5-.3.7-.3h.6c.2 0 .4 0 .6.5s.8 2 .9 2.1a.5.5 0 0 1 0 .5 7 7 0 0 1-.5.7c-.2.2-.4.4-.2.7a9.6 9.6 0 0 0 1.7 2.1 8.4 8.4 0 0 0 2.5 1.5c.3.2.5.1.7-.1s.8-.9 1-1.2.4-.2.7-.1 1.9.9 2.2 1.1.5.3.6.4a2 2 0 0 1-.1.9z"/>
-                    </svg>
-                    Order Basket on WhatsApp
-                </a>
-            </div>
-        </aside>
     </div>
 
     <button aria-label="Back to top" class="to-top" id="toTop" type="button">↑</button>

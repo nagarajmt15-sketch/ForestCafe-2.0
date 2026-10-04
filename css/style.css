@@ -88,9 +88,9 @@
     --radius-sm: 12px;
     --radius: 20px;
     --radius-lg: 28px;
-    --nav-h: 76px;
-    --shell: 1200px;
-    --pad: clamp(18px, 5vw, 64px);
+    --nav-h: 58px;
+    --shell: 1340px;
+    --pad: clamp(16px, 3.5vw, 44px);
     --font-display: 'CoffeeTown', cursive, sans-serif;
     --font-body: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
 }
@@ -101,9 +101,10 @@
     box-sizing: border-box;
 }
 
+/* --- Global Scroll Cushion for Fixed Header --- */
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: calc(var(--nav-h) + 12px);
+    scroll-padding-top: calc(var(--nav-h, 58px) + 16px) !important;
     -webkit-text-size-adjust: 100%;
     /* --- Global Viewport Shield: Eliminate Horizontal Drift --- */
     overflow-x: clip; /* Modern clean containment without scrollbar flicker */
@@ -240,7 +241,13 @@ textarea {
     }
 }
 
-/* ========== 3. Navbar ========== */
+/* =========================================================
+   NAVBAR: ULTRA-SLIM DYNAMIC GLASS STRIP
+========================================================= */
+:root {
+    --nav-h: 58px !important; /* Slimmed down from 76px for a sleek aesthetic */
+}
+
 .nav {
     position: fixed;
     top: 0;
@@ -250,32 +257,38 @@ textarea {
     z-index: 1200;
     display: flex;
     align-items: center;
-    transition: background 0.35s ease, box-shadow 0.35s ease, height 0.35s ease;
+    background: transparent;
+    transition: height 0.3s ease, background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
 }
 
-    .nav::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to bottom, rgba(12, 22, 10, 0.55), rgba(12, 22, 10, 0));
-        opacity: 1;
-        transition: opacity 0.35s ease;
-    }
+/* Subtle top vignette only over the initial hero */
+.nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0));
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
 
-    .nav.is-stuck {
-        background: rgba(247, 244, 235, 0.92);
-        backdrop-filter: blur(14px);
-        box-shadow: 0 2px 20px rgba(45, 60, 40, 0.1);
-        border-bottom: 1px solid var(--line);
-    }
+/* Slimmer sticky glass state that lets the underlying section colors show through */
+.nav.is-stuck {
+    height: 52px !important;
+    background: rgba(255, 255, 255, 0.28) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
 
-        .nav.is-stuck::before {
-            opacity: 0;
-        }
+.nav.is-stuck::before {
+    opacity: 0;
+}
 
 .nav-inner {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
     max-width: 1340px;
     margin: 0 auto;
@@ -283,105 +296,87 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 16px;
 }
 
+/* Brand Stamp (Logo + Compact Name) */
 .brand {
     display: inline-flex;
     align-items: center;
-    gap: 11px;
+    gap: 9px;
     text-decoration: none;
     flex-shrink: 0;
 }
 
-.brand-mark {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: var(--green-800);
-    border: 2px solid rgba(255, 255, 255, 0.35);
-    flex-shrink: 0;
-    overflow: hidden;
+.brand-logo {
+    display: block;
+    height: 34px !important; /* Slimmed to fit the compact header */
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.25s ease;
 }
 
-    .brand-mark img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-.nav.is-stuck .brand-mark {
-    border-color: rgba(56, 79, 49, 0.2);
+.nav.is-stuck .brand-logo {
+    height: 30px !important;
 }
 
 .brand-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.05;
+    line-height: 1;
 }
 
 .brand-name {
-    font-family: var(--font-display);
-    font-size: 1.32rem;
+    font-family: 'CoffeeTown', cursive, sans-serif !important;
+    font-size: 1.18rem !important;
     font-weight: 600;
-    color: #fff;
-    transition: color 0.35s ease;
+    color: #FFFFFF;
+    letter-spacing: 0.02em;
+    transition: color 0.3s ease;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .brand-sub {
-    font-size: 0.64rem;
+    font-size: 0.58rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 600;
-    transition: color 0.35s ease;
+    transition: color 0.3s ease;
 }
 
-.nav.is-stuck .brand-name {
-    color: var(--green-800);
-}
-
-.nav.is-stuck .brand-sub {
-    color: var(--ink-mute);
-}
-
+/* Nav Links */
 .nav-links {
     display: flex;
     align-items: center;
-    gap: clamp(4px, 1.2vw, 18px);
+    gap: clamp(4px, 1.1vw, 16px);
     list-style: none;
 }
 
-    .nav-links a {
-        position: relative;
-        display: block;
-        padding: 8px 10px;
-        font-size: 0.94rem;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.92);
-        text-decoration: none;
-        border-radius: 8px;
-        transition: color 0.25s ease;
-    }
-
-.nav.is-stuck .nav-links a {
-    color: var(--ink-soft);
+.nav-links a {
+    position: relative;
+    display: block;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: color 0.3s ease;
 }
 
 .nav-links a::after {
     content: "";
     position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 2px;
+    left: 8px;
+    right: 8px;
+    bottom: 0px;
     height: 2px;
     border-radius: 2px;
     background: var(--honey);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.28s ease;
+    transition: transform 0.25s ease;
 }
 
 .nav-links a:hover::after,
@@ -389,12 +384,56 @@ textarea {
     transform: scaleX(1);
 }
 
-.nav-links a.is-active {
-    color: #fff;
+/* =========================================================
+   DYNAMIC CONTRAST: LIGHT / DARK SECTION MODES
+========================================================= */
+
+/* Over Cream / Light Background Sections */
+.nav.is-stuck.nav--light-surface {
+    background: rgba(247, 244, 235, 0.65) !important;
+    border-bottom: 1px solid rgba(60, 83, 53, 0.12) !important;
 }
 
-.nav.is-stuck .nav-links a.is-active {
-    color: var(--green-800);
+.nav.is-stuck.nav--light-surface .brand-name {
+    color: var(--green-800) !important;
+    text-shadow: none;
+}
+
+.nav.is-stuck.nav--light-surface .brand-sub {
+    color: var(--ink-mute) !important;
+}
+
+.nav.is-stuck.nav--light-surface .nav-links a {
+    color: var(--ink) !important;
+}
+
+.nav.is-stuck.nav--light-surface .nav-links a:hover,
+.nav.is-stuck.nav--light-surface .nav-links a.is-active {
+    color: var(--green-800) !important;
+}
+
+/* Over Dark Sections (Chalkboard / Hero) */
+.nav.is-stuck.nav--dark-surface {
+    background: rgba(13, 19, 11, 0.60) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+.nav.is-stuck.nav--dark-surface .brand-name {
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.nav.is-stuck.nav--dark-surface .brand-sub {
+    color: #E2CBB0 !important;
+}
+
+.nav.is-stuck.nav--dark-surface .nav-links a {
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.nav.is-stuck.nav--dark-surface .nav-links a:hover,
+.nav.is-stuck.nav--dark-surface .nav-links a.is-active {
+    color: #FFFFFF !important;
 }
 
 /* mobile drawer */
@@ -645,15 +684,16 @@ textarea {
 }
 
 .shell--wide {
-    max-width: min(1340px, 100% - 2 * var(--pad));
+    max-width: min(1380px, 100% - 2 * var(--pad));
     box-sizing: border-box;
 }
 
+/* Give two-column splits wider room to breathe */
 .split {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: clamp(32px, 5vw, 60px);
+    gap: clamp(36px, 5vw, 76px);
 }
 
 .split--reverse {
@@ -2018,145 +2058,269 @@ textarea {
         display: block;
     }
 
-/* ========== 16. Footer + floating UI ========== */
+/* =========================================================
+   FOOTER: POLISHED TYPOGRAPHY, BRAND PRESENCE & WATERMARK
+========================================================= */
 .footer {
-    background: var(--green-900);
-    color: rgba(226, 237, 219, 0.72);
-    padding: clamp(52px, 6vw, 76px) var(--pad) 0;
+    background: var(--brn-900);
+    color: rgba(241, 228, 213, 0.88);
+    padding: clamp(64px, 8vw, 92px) var(--pad) 28px;
+    position: relative;
+    z-index: 10;
 }
 
 .footer-grid {
     max-width: var(--shell);
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
-    gap: clamp(26px, 4vw, 48px);
-    padding-bottom: 44px;
+    grid-template-columns: 1.45fr 1.1fr 0.9fr;
+    gap: clamp(32px, 5vw, 64px);
+    padding-bottom: 48px;
 }
 
-.footer .brand-name {
-    color: #fff;
+/* Brand Display & Logo Scaling */
+.footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    margin-bottom: 8px;
 }
 
-.footer .brand-sub {
-    color: rgba(226, 237, 219, 0.6);
+.footer-brand-logo {
+    display: block;
+    height: 56px !important; /* Scaled up clearly */
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45));
 }
 
-.footer .brand-mark {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.18);
-}
-
-.footer-about {
-    font-size: 0.92rem;
-    line-height: 1.75;
-    margin-top: 18px;
-    max-width: 34ch;
-}
-
-.footer-contact {
-    display: grid;
-    gap: 8px;
-    margin-top: 18px;
-    max-width: 36ch;
-}
-
-    .footer-contact p {
-        margin: 0;
-        font-size: 0.92rem;
-        line-height: 1.7;
-        color: rgba(226, 237, 219, 0.72);
-    }
-
-    .footer-contact a {
-        color: #fff;
-        text-decoration: none;
-    }
-
-.footer h4 {
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: #fff;
-    margin-bottom: 16px;
-}
-
-.footer ul {
-    list-style: none;
+.footer-brand-text {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    line-height: 1.05;
 }
 
-    .footer ul a {
-        text-decoration: none;
-        font-size: 0.93rem;
-        transition: color 0.2s ease;
-    }
+.footer-brand-name {
+    font-family: 'CoffeeTown', cursive, sans-serif !important;
+    font-size: 1.7rem !important;
+    font-weight: 600;
+    color: #FFF2DF !important;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
 
-        .footer ul a:hover {
-            color: #9DC77F;
-        }
+.footer-brand-sub {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #D8AA78;
+    font-weight: 700;
+}
+
+/* Feel-Good Narrative */
+.footer-about {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: rgba(241, 228, 213, 0.84);
+    margin-top: 16px;
+    max-width: 44ch;
+}
+
+/* Social Media Follow Box */
+.footer-social-wrap {
+    margin-top: 24px;
+}
+
+.footer-social-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #D8AA78;
+    margin-bottom: 12px;
+}
 
 .socials {
     display: flex;
-    gap: 10px;
-    margin-top: 22px;
+    gap: 12px;
 }
 
-    .socials a {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        transition: all 0.25s ease;
-    }
+.socials a {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
 
-    .socials svg {
-        width: 17px;
-        height: 17px;
-        fill: rgba(226, 237, 219, 0.85);
-    }
+.socials svg {
+    width: 20px;
+    height: 20px;
+    fill: #FFF2DF;
+}
 
-    .socials a:hover {
-        background: var(--honey);
-        border-color: var(--honey);
-        transform: translateY(-2px);
-    }
+.socials a:hover {
+    background: var(--honey);
+    border-color: var(--honey);
+    transform: translateY(-3px);
+}
 
-        .socials a:hover svg {
-            fill: #fff;
-        }
+/* Headings (VISIT & EXPLORE) */
+.footer-heading {
+    font-family: 'CoffeeTown', cursive, sans-serif !important;
+    font-size: 1.35rem !important;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #FFF2DF !important;
+    margin-bottom: 22px;
+}
 
-.footer-bottom {
+/* Content Links & Information */
+.footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 1.02rem;
+    line-height: 1.75;
+    color: rgba(241, 228, 213, 0.85);
+}
+
+.footer-contact-highlight span {
+    color: #D8AA78;
+    font-weight: 700;
+    margin-right: 6px;
+}
+
+.footer-contact-highlight a {
+    color: #FFF2DF;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.footer-contact-highlight a:hover {
+    color: var(--honey);
+}
+
+/* Navigation List */
+.footer-nav-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.footer-nav-list a {
+    font-size: 1.02rem;
+    font-weight: 500;
+    color: rgba(241, 228, 213, 0.85);
+    text-decoration: none;
+    display: inline-block;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-nav-list a:hover {
+    color: #F2B676 !important;
+    transform: translateX(4px);
+}
+
+/* Bottom Wrappers & Signature Watermark */
+.footer-bottom-wrap {
     max-width: var(--shell);
     margin: 0 auto;
-    padding: 22px 0 26px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(241, 228, 213, 0.16);
+    padding-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.footer-credit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.94rem;
+    color: rgba(241, 228, 213, 0.75);
+    text-align: center;
+    flex-wrap: wrap;
+}
+
+.footer-credit strong {
+    color: #FFF2DF;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.heart-pulse {
+    color: #E25555;
+    display: inline-block;
+    animation: heartPulse 1.8s infinite;
+}
+
+@keyframes heartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+}
+
+.footer-credit-sep {
+    color: rgba(241, 228, 213, 0.4);
+}
+
+.footer-credit-phone {
+    color: #F2B676;
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition: color 0.2s ease;
+}
+
+.footer-credit-phone:hover {
+    color: #FFFFFF;
+}
+
+.footer-bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 12px;
-    font-size: 0.84rem;
+    gap: 14px;
+    font-size: 0.86rem;
+    color: rgba(241, 228, 213, 0.65);
 }
 
-    .footer-bottom nav {
-        display: flex;
-        gap: 20px;
-    }
+.footer-bottom nav {
+    display: flex;
+    gap: 22px;
+}
 
-    .footer-bottom a {
-        text-decoration: none;
-    }
+.footer-bottom a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
 
-        .footer-bottom a:hover {
-            color: #9DC77F;
-        }
+.footer-bottom a:hover {
+    color: #F2B676;
+}
+
+@media (max-width: 900px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
 
 /* scroll progress + back to top */
 .progress-bar {
@@ -2314,21 +2478,36 @@ textarea {
     pointer-events: none;
 }
 
-/* Master Perch Layer */
+/* =========================================================
+   ART DIRECTOR SECTION & SUSPENDED MINION LAYER
+========================================================= */
+
+/* Ensure the master section allows overlapping elements without vertical clipping */
+#art-director,
+.ad-section {
+    position: relative;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+}
+
+/* =========================================================
+   ART DIRECTOR SECTION — RESPONSIVE HANGING MINION LAYER
+========================================================= */
+
 .ad-minion-perch-layer {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     width: 100%;
-    max-width: 1340px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 0 2vw;
-    z-index: 30 !important; /* Fully elevated above the top cream curve */
+    padding: 0;
+    z-index: 25 !important;
     pointer-events: none;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    justify-content: flex-end;
+    align-items: flex-start;
     box-sizing: border-box;
     overflow: visible !important;
 }
@@ -2339,52 +2518,39 @@ textarea {
     align-items: flex-end;
 }
 
-/* --- Left Single Minion: Dropped ~1cm directly onto the chalkboard --- */
-.perched-minion--left {
-    transform: translateY(-46%) !important;
-    margin-left: 0;
-}
-
-.perched-minion--left .minion-character-img {
-    width: clamp(130px, 14vw, 185px);
-    height: auto;
-    display: block;
-    position: relative;
-    z-index: 2;
-    filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.5));
-}
-
-.leaf--left {
-    position: absolute;
-    left: -48px;
-    bottom: -28px !important;
-    width: clamp(110px, 13vw, 160px);
-    z-index: 1;
-    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
-}
-
-/* --- Right Hanging Leaf Only (couple-minion.png removed): Sits on the top ledge --- */
+/* Right Hanging Minion Anchor — Dynamic curve tracking */
 .perched-minion--right {
-    transform: translateY(-20%) !important;
-    margin-right: clamp(10px, 2.5vw, 40px);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    /* Dynamically scales with the chalkboard curve depth across all screen widths */
+    transform: translateY(clamp(36px, 5.4vw, 84px)) !important;
+    margin-right: clamp(10px, 3vw, 40px) !important;
 }
 
-.perched-minion--right .minion-character-img {
-    display: none; /* Removed — image file absent */
-}
-
-/* --- Right Hanging Plant: Rope anchor on the rim, foliage hangs below --- */
-.leaf--right {
-    width: clamp(120px, 14vw, 175px);
+.minion-hanging-img {
+    width: clamp(120px, 14vw, 195px);
     height: auto;
     display: block;
-    position: relative;
-    z-index: 25;
-    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45));
+    filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.45));
+    transform-origin: top center !important;
+    animation: gentleMinionSway 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate !important;
+    will-change: transform;
 }
 
+/* Natural pendulum swing arc */
+@keyframes gentleMinionSway {
+    0%   { transform: rotate(-3.2deg); }
+    100% { transform: rotate(3.2deg); }
+}
 
-
+/* Clean up obsolete left-side styles */
+.perched-minion--left,
+.minion-decor-leaf,
+.leaf--left,
+.leaf--right {
+    display: none !important;
+}
 
 
 .ad-shell {
@@ -2401,14 +2567,15 @@ textarea {
     margin-bottom: 0;
 }
 
+/* Eyebrow Label Warmth */
 .ad-eyebrow {
     display: inline-block;
-    color: rgba(222, 203, 176, 0.9);
+    color: #E2CBB0 !important;
     font-size: 0.82rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    text-shadow: 0 2px 7px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
 }
 
     .ad-eyebrow svg { fill: var(--honey-soft); }
@@ -2501,16 +2668,23 @@ textarea {
 
 /* ---------- JOURNEY ---------- */
 
-.ad-subtitle {
-    font-family: var(--font-display);
+/* Golden roasted coffee-tone gradient for Story Headlines */
+.ad-subtitle,
+.ad-story .ad-subtitle,
+.ad-future .ad-subtitle,
+.ad-articles .ad-subtitle {
+    font-family: 'CoffeeTown', cursive, sans-serif !important;
     font-weight: 600;
-    color: #F7F4EB;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
-    margin-top: 2px;
-    margin-bottom: 32px;
-    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.9);
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    font-size: clamp(2rem, 3.6vw, 2.85rem);
+    margin-top: 6px;
+    margin-bottom: 24px;
+    /* Warm Coffee Amber Gradient */
+    background: linear-gradient(135deg, #FFF3E3 0%, #F2B676 50%, #C9803A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.85));
 }
 
 .ad-journey-grid {
@@ -2520,21 +2694,40 @@ textarea {
     align-items: center;
 }
 
+/* =========================================================
+   MILESTONES: COFFEE-COLORED KEYWORDS BEFORE THE COLON
+========================================================= */
 .ad-journey-list {
     list-style: none;
-    margin-bottom: 26px;
+    margin-bottom: 24px;
 }
 
-    .ad-journey-list li {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        font-size: clamp(1rem, 1.2vw, 1.08rem);
-        line-height: 1.6;
-        color: rgba(247, 244, 235, 0.9);
-        margin-bottom: 14px;
-    }
+.ad-journey-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: clamp(0.98rem, 1.15vw, 1.06rem);
+    line-height: 1.7;
+    color: rgba(247, 244, 235, 0.88);
+    margin-bottom: 16px;
+}
 
+/* Highlighted Milestones (Before the colon) */
+.ad-journey-list li strong {
+    color: #F2B676 !important; /* Luminous warm coffee roast */
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Film / Feature italic tags */
+.ad-journey-list li em {
+    color: #FFF3E3;
+    font-style: italic;
+    letter-spacing: 0.01em;
+}
+
+/* Orange Checkmark Badge Tuning */
 .ad-check {
     flex: 0 0 auto;
     width: 24px;
@@ -2543,20 +2736,26 @@ textarea {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: var(--honey);
-    color: #fff;
-    font-size: 0.8rem;
+    background: linear-gradient(135deg, #E8A355 0%, #C9803A 100%);
+    color: #FFFFFF;
+    font-size: 0.78rem;
     font-weight: 700;
-    margin-top: 2px;
+    margin-top: 3px;
+    box-shadow: 0 4px 12px rgba(201, 128, 58, 0.4);
 }
 
+/* Warm Roasted Pull-Quote */
 .ad-journey-note {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 1.05rem;
-    color: var(--honey-soft);
-    border-left: 3px solid var(--honey);
-    padding-left: 18px;
+    font-family: 'CoffeeTown', cursive, sans-serif !important;
+    font-size: 1.18rem !important;
+    line-height: 1.5;
+    color: #F6E6D2 !important;
+    border-left: 3px solid #C9803A;
+    background: linear-gradient(90deg, rgba(201, 128, 58, 0.14) 0%, transparent 100%);
+    padding: 12px 18px;
+    border-radius: 0 14px 14px 0;
+    margin: 22px 0 24px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .ad-journey-media {
@@ -2902,7 +3101,7 @@ body #shop .products-grid          { gap: 28px; }
 .horizon-slat__arrow--left  { left: -24px; }
 .horizon-slat__arrow--right { right: -24px; }
 
-.horizon-slat__counter { position: static; display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 28px; color: var(--stay-700); font-weight: 600; font-variant-numeric: tabular-nums; }
+.horizon-slat__counter { position: static; display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 36px; margin-bottom: 24px; color: var(--stay-700); font-weight: 600; font-variant-numeric: tabular-nums; z-index: 10; }
 .horizon-slat__counter-line { display: block; position: relative; width: 140px; height: 3px; border-radius: 3px; background: rgba(47, 90, 103, .18); overflow: hidden; }
 .horizon-slat__counter-progress { position: absolute; inset: 0; background: var(--stay-700); transform-origin: left; transition: transform .6s cubic-bezier(.65, 0, .2, 1); }
 
@@ -2921,18 +3120,7 @@ body .visit-grid { grid-template-columns: 1fr 1fr; gap: 64px; align-items: stret
 }
 .visit-map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-/* ==========================================================================
-   FOOTER (brown)
-   ========================================================================== */
-.footer              { background: var(--brn-900); color: rgba(241, 228, 213, .78); }
-.footer h4           { color: var(--brn-100); font-family: var(--font-display); font-weight: 500; }
-.footer a            { color: rgba(241, 228, 213, .85); }
-.footer a:hover      { color: #fff; }
-.footer-about        { color: rgba(241, 228, 213, .72); }
-.footer .socials a   { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .16); }
-.footer .socials a:hover { background: var(--brn-500); }
-.footer .socials svg { fill: var(--brn-100); }
-.footer-bottom       { border-top-color: rgba(241, 228, 213, .16); color: rgba(241, 228, 213, .65); }
+
 
 
 /* ==========================================================================
@@ -3043,17 +3231,60 @@ body .visit-grid { grid-template-columns: 1fr 1fr; gap: 64px; align-items: stret
 .ad-story-toggle .arrow { transition: transform .35s ease; display: inline-block; }
 .ad-story-toggle[aria-expanded="true"] .arrow { transform: rotate(-90deg); }
 .ad-story-media { display: flex; flex-direction: column; gap: 16px; }
-.ad-story-photo { aspect-ratio: 4 / 5; width: 100%; box-shadow: var(--shadow-lg); }
+/* Film-strip inspired portrait frame */
+.ad-story-photo {
+    aspect-ratio: 4 / 5;
+    width: 100%;
+    border-radius: 20px;
+    border: 1.5px solid rgba(242, 182, 118, 0.35);
+    background: rgba(18, 26, 17, 0.6);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Modern Film Cell Stat Containers */
 .ad-story-stats {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
 }
+
 .ad-story-stats > div {
-    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
-    padding: 14px 8px; border-radius: 16px;
-    background: rgba(247, 244, 235, .08); border: 1px solid rgba(247, 244, 235, .16);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    padding: 16px 8px;
+    border-radius: 16px;
+    background: rgba(247, 244, 235, 0.05);
+    border: 1px solid rgba(242, 182, 118, 0.22);
+    backdrop-filter: blur(8px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
 }
-.ad-story-stats .ad-stat-number { font-size: 1.5rem; color: #F2B676; }
-.ad-story-stats .ad-stat-label { font-size: .68rem; color: rgba(247, 244, 235, .8); text-align: center; }
+
+.ad-story-stats > div:hover {
+    transform: translateY(-3px);
+    border-color: rgba(242, 182, 118, 0.55);
+}
+
+.ad-story-stats .ad-stat-number {
+    font-family: 'CoffeeTown', cursive, sans-serif !important;
+    font-size: 1.85rem !important;
+    font-weight: 700;
+    color: #F2B676 !important;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(242, 182, 118, 0.3);
+}
+
+.ad-story-stats .ad-stat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(247, 244, 235, 0.8);
+}
 
 .ad-story-full {
     display: grid; grid-template-rows: 0fr; visibility: hidden; opacity: 0;
@@ -3332,254 +3563,98 @@ body .visit-grid { grid-template-columns: 1fr 1fr; gap: 64px; align-items: stret
 }
 
 /* =========================================================
-   STORY SECTION COLOR HARMONY & HIGHLIGHTS
+   STAY SECTION NATURE RIBBON (ARCHITECTURAL DIVIDER)
 ========================================================= */
 
-/* Warm honey/brown color for the big story titles */
-.ad-section .ad-subtitle {
-    color: #F2B676 !important;
-    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.95);
+/* Farm shop base spacing */
+#shop {
+    padding-bottom: clamp(32px, 4vw, 48px) !important;
 }
 
-/* Warm roasted-honey color for list item titles */
-.ad-journey-list li strong {
-    color: #F2B676 !important;
-    font-weight: 700;
+.shop-toggle-wrap {
+    margin-bottom: 0;
 }
 
-/* Highlight lead text and colon styling */
-.ad-journey-list li .story-lead-title {
-    color: #E6A25C;
-    font-weight: 700;
+/* Master Ribbon Wrapper — Full-width presence with 2cm vertical breathing room */
+.ribbon--stay {
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    margin-top: clamp(48px, 5vw, 68px) !important;    /* ~2cm above */
+    margin-bottom: clamp(48px, 5vw, 68px) !important; /* ~2cm below */
+    padding: 0;
+    line-height: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background: transparent !important;
+}
+
+.ribbon--stay .ribbon-inner {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Graphic Display & Seamless White-Halo Dissolve */
+.ribbon--stay .stay-ribbon-graphic {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    /* Melts white boundary seamlessly into the site canvas */
+    mix-blend-mode: multiply;
+    filter: contrast(1.04) saturate(1.06);
+    will-change: transform;
+}
+
+/* Stay Section Entry Clearance */
+#stay {
+    padding-top: clamp(24px, 3vh, 40px) !important;
+}
+
+@media (max-width: 768px) {
+    .ribbon--stay {
+        margin-top: 28px !important;
+        margin-bottom: 28px !important;
+    }
 }
 
 /* =========================================================
-   NAV CART BUTTON & SLIDE-OVER DRAWER
+   HANGING MINION — RESPONSIVE & MOTION
 ========================================================= */
 
-.nav-cart-btn {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: rgba(22, 38, 18, 0.55);
-    color: #ffffff;
-    cursor: pointer;
-    backdrop-filter: blur(8px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    flex-shrink: 0;
+/* Mobile & Tablet Fine-Tuning */
+@media (max-width: 900px) {
+    .perched-minion--right {
+        transform: translateY(clamp(32px, 5vw, 56px)) !important;
+        margin-right: 18px !important;
+    }
+    .minion-hanging-img {
+        width: clamp(100px, 16vw, 140px);
+    }
+    .horizon-slat__counter {
+        margin-top: 24px !important;
+        margin-bottom: 16px !important;
+    }
 }
 
-.nav.is-stuck .nav-cart-btn {
-    background: #ffffff;
-    color: var(--green-800);
-    border-color: rgba(60, 83, 53, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+@media (max-width: 520px) {
+    .perched-minion--right {
+        transform: translateY(28px) !important;
+        margin-right: 12px !important;
+    }
+    .minion-hanging-img {
+        width: 92px;
+    }
 }
 
-.nav-cart-btn:hover {
-    transform: scale(1.08);
-}
-
-.nav-cart-badge {
-    position: absolute;
-    top: -3px;
-    right: -3px;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 999px;
-    background: var(--honey);
-    color: #ffffff;
-    font-size: 0.68rem;
-    font-weight: 800;
-    line-height: 18px;
-    text-align: center;
-    padding: 0 4px;
-    border: 2px solid #ffffff;
-}
-
-/* Backdrop Overlay */
-.cart-drawer-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 4500;
-    background: rgba(10, 18, 10, 0.65);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.35s ease, visibility 0.35s ease;
-}
-
-.cart-drawer-overlay.is-open {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Sliding Drawer Panel */
-.cart-drawer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: min(440px, 92vw);
-    height: 100%;
-    background: #FAF8F2;
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.35);
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.cart-drawer-overlay.is-open .cart-drawer {
-    transform: translateX(0);
-}
-
-.cart-drawer__header {
-    padding: 24px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid rgba(60, 83, 53, 0.12);
-    background: #ffffff;
-}
-
-.cart-drawer__eyebrow {
-    font-size: 0.74rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--green-600);
-    display: block;
-}
-
-.cart-drawer__title {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    color: var(--green-800);
-    margin-top: 2px;
-}
-
-.cart-drawer__close {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(60, 83, 53, 0.08);
-    font-size: 1.5rem;
-    color: var(--green-800);
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    line-height: 1;
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.cart-drawer__close:hover {
-    background: rgba(60, 83, 53, 0.16);
-    transform: rotate(90deg);
-}
-
-.cart-drawer__body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.cart-drawer__empty {
-    margin: auto 0;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    color: var(--ink-soft);
-}
-
-.cart-empty-icon {
-    font-size: 3rem;
-}
-
-/* Individual Drawer Item */
-.cart-item-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px;
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid rgba(60, 83, 53, 0.08);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-.cart-item-row img {
-    width: 58px;
-    height: 58px;
-    border-radius: 12px;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-
-.cart-item-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.cart-item-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--green-800);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cart-item-meta {
-    font-size: 0.8rem;
-    color: var(--ink-mute);
-    margin-top: 2px;
-}
-
-.cart-item-remove {
-    background: none;
-    border: none;
-    color: #c95240;
-    cursor: pointer;
-    font-size: 1.1rem;
-    padding: 6px;
-}
-
-.cart-drawer__footer {
-    padding: 22px 28px;
-    background: #ffffff;
-    border-top: 1px solid rgba(60, 83, 53, 0.12);
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.cart-drawer__summary {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.95rem;
-    color: var(--ink-soft);
-}
-
-.cart-drawer__summary strong {
-    color: var(--green-800);
-    font-weight: 700;
-}
-
-.cart-drawer__whatsapp-btn {
-    width: 100%;
-    justify-content: center;
-    font-size: 0.98rem;
+@media (prefers-reduced-motion: reduce) {
+    .minion-hanging-img {
+        animation: none;
+    }
 }
