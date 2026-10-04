@@ -85,6 +85,16 @@
                     <li><a href="#visit">Visit</a></li>
                 </ul>
             </nav>
+
+            <!-- Cart Icon Trigger Button -->
+            <button type="button" class="nav-cart-btn" id="navCartBtn" aria-label="Open Farm Shop Cart" aria-haspopup="dialog" aria-expanded="false">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <span class="nav-cart-badge" id="navCartBadge">0</span>
+            </button>
         </div>
     </header>
     <!-- mobile drawer -->
@@ -553,8 +563,7 @@
         <section class="section stay-section theme-stay" id="stay">
             <div class="shell shell--wide">
 
-                <div class="split stay-hero-split reveal"
-                     style="align-items: center; margin-bottom: clamp(40px, 5vw, 70px);">
+                <div class="split stay-hero-split reveal">
                     <div class="cot-copy">
                         <span class="eyebrow" style="color: var(--stay-700)">
                             <svg viewBox="0 0 24 24" style="width: 17px; height: 17px; fill: var(--stay-700);">
@@ -569,26 +578,66 @@
                             screens—just fresh air, birdsong, and open space for little ones to play freely.
                         </p>
 
-                        <!-- Integrated Warm Note (No Awkward Floating Elements) -->
+                        <!-- Restored Classic Warm Note -->
                         <div class="stay-warm-note">
                             <p>
-                                "Breakfast is whatever came fresh off the farm that morning — served warm, healthy, and
-                                kid-approved."
+                                "Breakfast is whatever came fresh off the farm that morning — served warm, healthy, and kid-approved."
                             </p>
                         </div>
 
-                        <div style="margin-top: 24px;">
-                            <a class="btn btn--solid stay-btn" href="#rooms">
-                                See the Rooms &amp; Outdoors <span class="arrow">→</span>
+                        <!-- Amenities with Soft Blue Backgrounds & Refined SVG Icons -->
+                        <div class="cot-features-grid">
+                            <div class="cot-feature-item">
+                                <span class="cot-feat-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                                </span>
+                                <div><strong>Comfortable Stay</strong><span>Clean & cozy hill rooms</span></div>
+                            </div>
+                            <div class="cot-feature-item">
+                                <span class="cot-feat-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+                                </span>
+                                <div><strong>Estate Experience</strong><span>Live among coffee slopes</span></div>
+                            </div>
+                            <div class="cot-feature-item">
+                                <span class="cot-feat-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.58 20.44C10.5 14 16 11 20 8C18.5,5 15.5,2 12,2C8,2 4,5 4,8C4,10.5 5.5,13.5 8,15.5L7.2,17C4.2,14.5 2,10.8 2,8C2,4.1 5.6,1 12,1C17.5,1 21.5,4.8 22,8.5L17,8Z"></path></svg>
+                                </span>
+                                <div><strong>Peaceful Surroundings</strong><span>Birds, mist & silence</span></div>
+                            </div>
+                            <div class="cot-feature-item">
+                                <span class="cot-feat-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                </span>
+                                <div><strong>Families & Groups</strong><span>Open space for kids</span></div>
+                            </div>
+                        </div>
+
+                        <div class="cot-cta-group">
+                            <a class="btn btn--solid stay-btn" href="https://wa.me/919444060619?text=Hi%20Forest%20Cafe%2C%20I%20would%20like%20to%20book%20a%20homestay%20room" target="_blank" rel="noopener">
+                                Book Your Stay Today <span class="arrow">→</span>
+                            </a>
+                            <a class="btn btn--ghost" href="#rooms">
+                                Explore Room Views
                             </a>
                         </div>
                     </div>
 
-
-                    <div class="cot-media">
-                        <img alt="Illustration of the Tiny Cot rooms at Forest Cafe" loading="lazy" src="images/rooms/item15.webp" />
+                    <div class="cot-media-wrap">
+                        <div class="cot-media">
+                            <img alt="Illustration of the Tiny Cot rooms at Forest Cafe" loading="lazy" src="images/rooms/item15.webp" />
+                        </div>
+                        <!-- Badges repositioned cleanly beneath cottage artwork -->
+                        <div class="cot-badges-row">
+                            <span class="cot-pill-badge">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.58,20.44C10.5,14 16,11 20,8C18.5,5 15.5,2 12,2C8,2 4,5 4,8C4,10.5 5.5,13.5 8,15.5L7.2,17C4.2,14.5 2,10.8 2,8C2,4.1 5.6,1 12,1C17.5,1 21.5,4.8 22,8.5L17,8Z"></path></svg>
+                                Inside a Coffee Estate
+                            </span>
+                            <span class="cot-pill-badge cot-pill-badge--accent">Max 8 Guests</span>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </section>
 
@@ -675,10 +724,9 @@
                     <img class="minion-character-img" src="images/minion/single-minion.png" alt="Handmade tire minion">
                 </div>
 
-                <!-- Right Minion Pair: Sitting with Purple/Green Fern -->
+                <!-- Right Hanging Leaf Decoration -->
                 <div class="perched-minion perched-minion--right">
-                    <img class="minion-character-img" src="images/minion/couple-minion.png" alt="Handmade tire minion pair">
-                    <img class="minion-decor-leaf leaf--right" src="images/minion/leaf-right.png" alt="" onerror="this.style.display='none'">
+                    <img class="minion-decor-leaf leaf--right" src="images/minion/leaf-right.png" alt="Hanging forest leaf decoration" onerror="this.style.display='none'">
                 </div>
             </div>
 
@@ -688,11 +736,9 @@
                  INTRO — MEET OUR ART DIRECTOR
             ====================================================== -->
                 <div class="ad-block ad-intro reveal">
-
                     <img src="images/story/board1.webp"
-                         alt="Art director showcase"
+                         alt="Meet Our Art Director"
                          class="ad-board-image">
-
                 </div>
 
 
@@ -702,20 +748,32 @@
                  <img src="ArtDirector/owner.jpg" alt="..."> when ready.
             ====================================================== -->
                 <div class="ad-block ad-story reveal" id="ourStory">
+                    <span class="eyebrow ad-eyebrow">A DIRECTOR'S RETREAT</span>
 
-                    <span class="eyebrow ad-eyebrow">OUR STORY</span>
-
-                    <h3 class="ad-subtitle">From Cinema to Farming</h3>
+                    <!-- Balanced two-line header -->
+                    <h3 class="ad-subtitle ad-title-break">
+                        From Cinema Sets<br>to Coffee Slopes
+                    </h3>
 
                     <div class="ad-story-grid">
-
                         <div class="ad-story-copy">
-
                             <ul class="ad-journey-list">
-                                <li><span class="ad-check">✓</span>I was born in Chennai and began my career in the film industry as an Art Director.</li>
-                                <li><span class="ad-check">✓</span>During a trip to the Kalvarayan Hills, I fell in love with the climate, greenery, and peaceful atmosphere.</li>
-                                <li><span class="ad-check">✓</span>We invested in 2.25 acres of land and started an organic farm.</li>
-                                <li><span class="ad-check">✓</span>In 2021, we took a significant leap by opening The Forest Cafe in the picturesque Kalvarayan Hills.</li>
+                                <li class="story-fade-item">
+                                    <span class="ad-check">✓</span>
+                                    <span><strong>Chennai Cinema Foundations:</strong> Built my creative career designing cinematic sets for films including <em>Jayam, Something Something, Unakkum Enakkum, Vennila Kabaddi Kuzhu, Sarvam Thaala Mayam, Jeeva</em>, and 300+ commercial ad campaigns.</span>
+                                </li>
+                                <li class="story-fade-item">
+                                    <span class="ad-check">✓</span>
+                                    <span><strong>The Mist of Kalrayan:</strong> An impromptu trip to the Kalrayan Hills revealed cool mountain air, raw wilderness, and absolute calm—sparking the decision to leave city studios behind.</span>
+                                </li>
+                                <li class="story-fade-item">
+                                    <span class="ad-check">✓</span>
+                                    <span><strong>2.25 Acres of Living Earth:</strong> With my wife and children by my side, we transformed virgin soil into an organic homestead—cultivating shade-grown coffee, pepper, native fruits, and wild beehives.</span>
+                                </li>
+                                <li class="story-fade-item">
+                                    <span class="ad-check">✓</span>
+                                    <span><strong>The Forest Cafe (2021):</strong> Conceived to share our harvests directly—serving freshly roasted estate coffee, authentic Podi Chai, and raw hill honey straight to your table.</span>
+                                </li>
                             </ul>
 
                             <p class="ad-journey-note">
@@ -724,78 +782,60 @@
 
                             <button class="btn btn--honey ad-btn ad-story-toggle" id="storyToggle" type="button"
                                     aria-expanded="false" aria-controls="storyFull">
-                                <span class="ad-story-toggle-text">Read full story</span>
+                                <span class="ad-story-toggle-text">Read My Full Story</span>
                                 <span class="arrow" aria-hidden="true">→</span>
                             </button>
-
                         </div>
 
                         <div class="ad-story-media">
-
                             <div class="ad-placeholder ad-story-photo">
-                                <!-- Replace with: <img src="ArtDirector/owner.jpg" alt="Founder of Forest Cafe"> -->
-                                <span class="ad-placeholder-label">Portfolio photo</span>
+                                <img src="ArtDirector/owner.jpg" alt="Founder & Art Director of Forest Cafe" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <span class="ad-placeholder-label" style="display:none;">Art Director Portrait</span>
                             </div>
 
                             <div class="ad-story-stats">
-                                <div><span class="ad-stat-number">300+</span><span class="ad-stat-label">Advertisements</span></div>
-                                <div><span class="ad-stat-number">2.25</span><span class="ad-stat-label">Acres of farm</span></div>
-                                <div><span class="ad-stat-number">2021</span><span class="ad-stat-label">Cafe opened</span></div>
+                                <div><span class="ad-stat-number">300+</span><span class="ad-stat-label">Ad Films & Features</span></div>
+                                <div><span class="ad-stat-number">2.25</span><span class="ad-stat-label">Acres Organic Farm</span></div>
+                                <div><span class="ad-stat-number">2021</span><span class="ad-stat-label">Cafe Opened</span></div>
                             </div>
-
                         </div>
-
                     </div>
 
-                    <!-- FULL STORY (opens with "Read full story") -->
+                    <!-- Distinct Narrative Memoir Unfold -->
                     <div class="ad-story-full" id="storyFull" aria-hidden="true">
                         <div class="ad-story-full-inner">
                             <div class="ad-story-text">
-                                <p>I was born in Chennai and began my career in the film industry as an Art Director. Over the years, I had the opportunity to work on films such as Jayam, Something Something, Unakkum Enakkum, Vennila Kabaddi Kuzhu, Puli Vaal, Sarvam Thaala Mayam, Jeeva, and many more, along with more than 300 advertisements.</p>
-                                <p>After several years, I wanted a simpler life, closer to nature. During a trip to the Kalvarayan Hills, I fell in love with the climate, greenery, and peaceful atmosphere. That experience inspired me to leave Chennai and begin a new journey in farming.</p>
-                                <p>We invested in 2.25 acres of land and started an organic farm. We cultivated coffee, silver oak, pepper, banana, coconut, fruits, and various spices, nurturing everything with love and care. We also started keeping honey bees and producing our own farm honey.</p>
-                                <p>My wife and children have been an important part of this journey, supporting and helping me throughout the process. Their encouragement and involvement gave me the strength to turn this dream into reality.</p>
-                                <p>Initially, we supplied our coffee and honey to others. But I wanted to create a place where people could experience the story and taste of our farm.</p>
-                                <p>In 2021, we took a significant leap by opening The Forest Cafe in the picturesque Kalvarayan Hills.</p>
-                                <p>Our café showcases our farm's produce, including our specialty coffee powder, Podi Chai—a unique spiced tea made with our in-house masala—and honey harvested from our own beehives.</p>
-                                <p>Today, The Forest Cafe is more than just a café. It is the story of my journey from cinema to farming, and from farming to creating something people can experience and enjoy.</p>
-                                <p class="ad-story-sign">From our farm to your table, every cup and every taste carries a little piece of our journey.</p>
+                                <p>For years, my world was framed through camera lenses, production blueprints, and studio backlots across Chennai. Crafting atmosphere for audiences across major films and hundreds of commercials was deeply fulfilling, yet beneath the noise, I longed for an honest, tactile connection to the earth.</p>
+                                <p>When I first visited the Kalrayan Hills, the quiet mountain roads and rolling mist left a profound impression. It wasn't merely a getaway; it felt like home. That encounter inspired my family and me to take a courageous leap—exchanging urban sets for 2.25 acres of untamed slopes.</p>
+                                <p>Together, we cleared the land with reverence for the ecosystem. We nurtured shade-grown coffee, planted silver oak for wind protection, tended pepper vines and banana groves, and introduced bees to help pollinate the forest canopy while providing raw honey.</p>
+                                <p>What began as a quiet family haven grew into something we wanted to share. In 2021, The Forest Cafe opened its doors—not as an ordinary business, but as the living culmination of cinema craft, mountain farming, and hospitality.</p>
+                                <p class="ad-story-sign">Every cup poured here carries the spirit of that transition. Welcome to our table.</p>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- =====================================================
                          FUTURE PLANS — ART CLASSES
                     ====================================================== -->
                 <div class="ad-block ad-future reveal">
-
                     <div class="ad-placeholder ad-future-media">
-                        <!-- Replace with: <img src="ArtDirector/art-class.jpg" alt="Art class"> -->
-                        <span class="ad-placeholder-label">Art class photo</span>
+                        <img src="ArtDirector/art-class.jpg" alt="Art classes at Forest Cafe" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span class="ad-placeholder-label" style="display:none;">Creative Studio & Workshops</span>
                     </div>
 
                     <div class="ad-future-copy">
-
-                        <span class="eyebrow ad-eyebrow">FUTURE PLANS</span>
-
-                        <h3 class="ad-subtitle">
-                            Art Classes
+                        <span class="eyebrow ad-eyebrow">CREATIVE WORKSHOPS</span>
+                        <h3 class="ad-subtitle ad-title-break">
+                            Hands-on Art<br>&amp; Design Sessions
                         </h3>
-
                         <p>
-                            Guided by love, knowledge and experience — thoughtful
-                            art classes focused on skill-building and hands-on
-                            learning for anyone who wants to create.
+                            Guided by decades in visual production and storytelling—intimate weekend workshops exploring drawing fundamentals, spatial design, and creative mindfulness amid the hills.
                         </p>
-
-                        <a class="btn btn--honey ad-btn" href="#">
+                        <a class="btn btn--honey ad-btn" href="https://wa.me/919444060619?text=Hi%20Forest%20Cafe%2C%20I%20am%20interested%20in%20upcoming%20art%20classes%20and%20workshops" target="_blank" rel="noopener">
                             Stay Tuned <span class="arrow">→</span>
                         </a>
-
                     </div>
-
                 </div>
 
 
@@ -803,32 +843,32 @@
                  ARTICLES — THOUGHTS & IDEAS
             ====================================================== -->
                 <div class="ad-block ad-articles reveal">
-
-                    <span class="eyebrow ad-eyebrow">ARTICLES</span>
-
-                    <h3 class="ad-subtitle">
-                        Thoughts &amp; Ideas
+                    <span class="eyebrow ad-eyebrow">ARTICLES &amp; BLOGS</span>
+                    <h3 class="ad-subtitle ad-title-break">
+                        Behind the Canvas<br>&amp; The Soil
                     </h3>
 
                     <div class="ad-article-card">
-
                         <div class="ad-placeholder ad-article-media">
-                            <!-- Replace with: <img src="ArtDirector/article-cover.jpg" alt=""> -->
-                            <span class="ad-placeholder-label">Article cover image</span>
+                            <img src="ArtDirector/article-cover.jpg" alt="Articles and Reflections" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <span class="ad-placeholder-label" style="display:none;">Article Cover Preview</span>
                         </div>
 
                         <div class="ad-article-copy">
+                            <h4>Stories of Design, Cinema &amp; Farm Life</h4>
                             <p>
-                                Sharing insights, inspiration and behind-the-scenes
-                                stories from the world of art direction and design.
+                                Personal notes on production aesthetics, the philosophy of slowing down, and practical insights from homesteading on the Kalrayan slopes.
                             </p>
-                            <a class="btn btn--light ad-btn" href="#">
-                                Read Article
-                            </a>
+                            <div class="ad-article-actions">
+                                <a class="btn btn--honey ad-btn" href="#" target="_blank" rel="noopener">
+                                    View Articles <span class="arrow">→</span>
+                                </a>
+                                <a class="btn btn--light ad-btn" href="#" target="_blank" rel="noopener">
+                                    Visit Blog
+                                </a>
+                            </div>
                         </div>
-
                     </div>
-
                 </div>
 
             </div>
@@ -1088,6 +1128,41 @@
                 <p class="pm-note">Your order message opens in WhatsApp — we'll confirm price and availability.</p>
             </div>
         </div>
+    </div>
+
+    <!-- ============ SLIDE-OVER CART DRAWER ============ -->
+    <div class="cart-drawer-overlay" id="cartDrawerOverlay" aria-hidden="true">
+        <aside class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle">
+            <div class="cart-drawer__header">
+                <div class="cart-drawer__title-wrap">
+                    <span class="cart-drawer__eyebrow">Hill Farm Fresh</span>
+                    <h3 id="cartDrawerTitle" class="cart-drawer__title">Your Farm Basket</h3>
+                </div>
+                <button type="button" class="cart-drawer__close" id="cartDrawerClose" aria-label="Close cart">×</button>
+            </div>
+
+            <div class="cart-drawer__body" id="cartDrawerItems">
+                <!-- Dynamically populated or empty slate fallback -->
+                <div class="cart-drawer__empty" id="cartEmptyState">
+                    <span class="cart-empty-icon">🧺</span>
+                    <p>Your basket is currently empty.</p>
+                    <a class="btn btn--honey btn--sm" href="#shop" id="cartShopNowBtn">Explore Farm Shop</a>
+                </div>
+            </div>
+
+            <div class="cart-drawer__footer" id="cartDrawerFooter">
+                <div class="cart-drawer__summary">
+                    <span>Total Items</span>
+                    <strong id="cartTotalItemsCount">0 items</strong>
+                </div>
+                <a class="btn btn--honey cart-drawer__whatsapp-btn" id="cartWhatsAppOrderBtn" href="#" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2s-1.1.3-3.6-.8-4-3.6-4.2-3.8-1.2-1.6-1.2-3 .8-2.1 1-2.4.5-.3.7-.3h.6c.2 0 .4 0 .6.5s.8 2 .9 2.1a.5.5 0 0 1 0 .5 7 7 0 0 1-.5.7c-.2.2-.4.4-.2.7a9.6 9.6 0 0 0 1.7 2.1 8.4 8.4 0 0 0 2.5 1.5c.3.2.5.1.7-.1s.8-.9 1-1.2.4-.2.7-.1 1.9.9 2.2 1.1.5.3.6.4a2 2 0 0 1-.1.9z"/>
+                    </svg>
+                    Order Basket on WhatsApp
+                </a>
+            </div>
+        </aside>
     </div>
 
     <button aria-label="Back to top" class="to-top" id="toTop" type="button">↑</button>

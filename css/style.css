@@ -105,15 +105,21 @@ html {
     scroll-behavior: smooth;
     scroll-padding-top: calc(var(--nav-h) + 12px);
     -webkit-text-size-adjust: 100%;
+    /* --- Global Viewport Shield: Eliminate Horizontal Drift --- */
+    overflow-x: clip; /* Modern clean containment without scrollbar flicker */
+    width: 100%;
+    max-width: 100vw;
 }
 
 body {
     width: 100%;
+    max-width: 100vw;
     min-height: 100%;
     background-color: var(--cream);
     font-family: var(--font-body);
     color: var(--ink);
-    overflow-x: hidden;
+    overflow-x: clip;
+    position: relative;
     line-height: 1.6;
 }
 
@@ -628,17 +634,19 @@ textarea {
 }
 
 .section--hairline {
-    border-top: 1px solid var(--line);
+    border-top: none !important; /* Removes harsh hairline borders across sections */
 }
 
 .shell {
-    max-width: var(--shell);
-    margin: 0 auto;
     width: 100%;
+    max-width: min(var(--shell), 100% - 2 * var(--pad));
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .shell--wide {
-    max-width: 1340px;
+    max-width: min(1340px, 100% - 2 * var(--pad));
+    box-sizing: border-box;
 }
 
 .split {
@@ -1197,15 +1205,7 @@ textarea {
 }
 
     #cafe::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -70px;
-        width: 100%;
-        height: 70px;
-        background: linear-gradient( to bottom, var(--cream) 0%, #F3F0E6 35%, var(--cream-deep) 100% );
-        pointer-events: none;
-        z-index: 5;
+        display: none !important; /* Suppress hard blend strip — gradient on #shop handles the transition */
     }
 
 /* Keep the next section underneath the blend */
@@ -1395,12 +1395,15 @@ textarea {
     }
 
 /* ============ RIBBON ============ */
+/* --- Seamless Ribbon Transitions (No Hard Edge Splits) --- */
 
 .ribbon {
     width: 100%;
-    min-height: 0px;
-    /* Top color + bottom color */
-    background: linear-gradient( to bottom, #EFEADB 0%, #EFEADB 55%, #F7F4EB 55%, #F7F4EB 100% );
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    background: transparent !important; /* Image provides its own colour context */
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -1411,13 +1414,14 @@ textarea {
     max-width: none;
     margin: 0;
     padding: 0;
+    line-height: 0;
 }
 
     .ribbon-inner img {
         display: block;
         width: 100%;
         height: auto;
-        max-width: none;
+        max-width: 100%;
     }
 
 /* =========================================================
@@ -1431,20 +1435,16 @@ textarea {
 }
 
     #farm::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: -100px;
-        width: 100%;
-        height: 100px;
-        background: linear-gradient( to bottom, var(--cream) 0%, rgba(247, 244, 235, 0.8) 30%, rgba(239, 234, 219, 0.8) 70%, var(--cream-deep) 100% );
-        pointer-events: none;
-        z-index: 5;
+        display: none !important; /* Suppress overlap strip — gradient on #shop handles the transition */
     }
 
 #shop {
     position: relative;
     z-index: 1;
+    padding-bottom: 24px !important;
+    border-top: none;
+    /* Gentle top-to-bottom blend into farm shop */
+    background: linear-gradient(180deg, var(--cream) 0%, var(--cream-deep) 15%, var(--cream-deep) 85%, var(--cream) 100%);
 }
 
 .farm-heading {
@@ -1664,18 +1664,59 @@ textarea {
     position: relative;
     z-index: 1;
     margin-bottom: 0;
-    background: linear-gradient(to bottom, var(--cream) 0%, var(--stay-050) 55%, var(--stay-050) 82%, #F4F5EF 92%, var(--cream) 100%);
+    /* Gentle blend — avoids the old banded multi-stop gradient */
+    background: linear-gradient(180deg, var(--cream) 0%, var(--stay-050) 25%, var(--stay-050) 75%, var(--cream) 100%) !important;
 }
 
-.cot-copy { flex: 1.05; }
-.cot-media { flex: 1.2; position: relative; }
+/* --- Desktop Viewport Framing for Tiny Cot --- */
+.stay-hero-split {
+    min-height: min(650px, 75vh);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(32px, 4vw, 64px);
+    margin-bottom: 0 !important;
+}
+
+.cot-copy {
+    flex: 1.1;
+    max-width: 580px;
+}
+
+.cot-media {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
 .cot-media img {
     position: relative;
     z-index: 1;
-    width: 100%;
+    max-height: min(440px, 52vh);
+    width: auto;
+    object-fit: contain;
     filter: drop-shadow(0 10px 15px rgba(64, 58, 40, 0.08));
     animation: float 5.5s ease-in-out infinite;
+}
+
+/* Clean mobile fallback */
+@media (max-width: 900px) {
+    .stay-hero-split {
+        min-height: auto;
+        flex-direction: column-reverse;
+        text-align: center;
+        gap: 32px;
+    }
+
+    .cot-copy {
+        max-width: 100%;
+    }
+
+    .stay-warm-note {
+        text-align: left;
+    }
 }
 
 .stay-warm-note {
@@ -1700,8 +1741,8 @@ textarea {
 .rooms-showcase {
     position: relative;
     z-index: 2;
-    padding-top: 10px;
-    padding-bottom: 120px !important; /* Generous gap so floral hair doesn't touch the cards */
+    padding-top: clamp(24px, 4vh, 48px) !important;
+    padding-bottom: clamp(80px, 10vh, 120px) !important;
     background: var(--cream);
     overflow: visible !important;
 }
@@ -2217,13 +2258,17 @@ textarea {
    layout: intro + portrait, journey stats, future art classes, articles.
 ========================================================================= */
 
+/* --- Mascots & Curve Overflow Safeguard --- */
 #art-director,
 .ad-section {
     position: relative;
-    overflow: visible !important;
+    /* Lock only horizontal spillage; NEVER clip vertically so heads poke over freely */
+    overflow-x: clip !important;
+    overflow-y: visible !important;
     padding-top: 140px !important;
-    padding-bottom: 150px !important;
+    padding-bottom: 140px !important;
     background: #0d130b;
+    max-width: 100vw;
 }
 
 /* Background image filling the section cleanly */
@@ -2235,22 +2280,22 @@ textarea {
     display: block;
     object-fit: cover;
     object-position: center;
-    z-index: 0;
+    z-index: 1; /* Stays underneath the z-index:6 cream curve */
     pointer-events: none;
 }
 
-/* Top Downward-Dipping Cream Curve */
+/* --- Seamless Top Blackboard Dip --- */
 .ad-section::before {
     content: "" !important;
     display: block !important;
     position: absolute;
-    top: -2px;
-    left: -5%;
-    width: 110%;
-    height: 120px;
+    top: -3px;
+    left: -2%;
+    width: 104%;
+    height: 125px;
     background: var(--cream);
     border-radius: 0 0 50% 50% / 0 0 100% 100%;
-    z-index: 5;
+    z-index: 6; /* Above bg (1) and content (2-5), below minion perch (30) */
     pointer-events: none;
 }
 
@@ -2260,9 +2305,9 @@ textarea {
     display: block !important;
     position: absolute;
     bottom: -2px;
-    left: -5%;
-    width: 110%;
-    height: 120px;
+    left: 0;
+    width: 100%;
+    height: 110px;
     background: var(--cream);
     border-radius: 50% 50% 0 0 / 100% 100% 0 0;
     z-index: 5;
@@ -2276,15 +2321,16 @@ textarea {
     left: 0;
     right: 0;
     width: 100%;
-    max-width: 1380px;
+    max-width: 1340px;
     margin: 0 auto;
     padding: 0 2vw;
-    z-index: 20 !important; /* Renders above the top cream curve */
+    z-index: 30 !important; /* Fully elevated above the top cream curve */
     pointer-events: none;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     box-sizing: border-box;
+    overflow: visible !important;
 }
 
 .perched-minion {
@@ -2317,29 +2363,24 @@ textarea {
     filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
 }
 
-/* --- Right Minion Couple: Dropped ~1cm onto the curve --- */
+/* --- Right Hanging Leaf Only (couple-minion.png removed): Sits on the top ledge --- */
 .perched-minion--right {
-    transform: translateY(-38%) !important;
-    margin-right: clamp(10px, 2vw, 40px);
+    transform: translateY(-20%) !important;
+    margin-right: clamp(10px, 2.5vw, 40px);
 }
 
 .perched-minion--right .minion-character-img {
-    width: clamp(165px, 19vw, 245px);
+    display: none; /* Removed — image file absent */
+}
+
+/* --- Right Hanging Plant: Rope anchor on the rim, foliage hangs below --- */
+.leaf--right {
+    width: clamp(120px, 14vw, 175px);
     height: auto;
     display: block;
     position: relative;
-    z-index: 3;
-    filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.55));
-}
-
-/* --- Right Hanging Plant: Pulled down so the rope anchor sits on the rim and foliage hangs below --- */
-.leaf--right {
-    position: absolute;
-    right: -70px;
-    bottom: -160px !important;
-    width: clamp(120px, 14vw, 175px);
-    z-index: 1;
-    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
+    z-index: 25;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45));
 }
 
 
@@ -2375,22 +2416,20 @@ textarea {
 /* ---------- INTRO ---------- */
 
 .ad-intro {
-    max-width: 1200px;
-    margin-top: 24px;
-    margin-bottom: 40px;
+    max-width: 1040px;
+    margin: 0 auto 36px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* Aligns left to anchor the story section */
     align-items: center;
 }
 
 .ad-board-image {
     display: block;
-    width: min(40vw, 400px);
-    max-width: 100%;
+    width: min(340px, 80vw);
     height: auto;
-    margin: 0 auto;
-    transform: translateX(-350px);
-    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.2));
+    margin: 0;
+    transform: none !important;
+    filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.45));
 }
 
 .ad-title {
@@ -2703,11 +2742,14 @@ body .stat-num        { font-family: 'CoffeeTown', cursive, sans-serif !importan
 .info-item span { color: rgba(251, 243, 234, 0.8); }
 
 /* ---------- Section rhythm + alignment ---------- */
-body #about, body #cafe, body #menu, body #farm, body #shop, body #stay, body #visit {
+body #about, body #cafe, body #menu, body #farm, body #visit {
     padding-top: var(--sec);
     padding-bottom: var(--sec);
 }
-body #rooms { padding-top: var(--sec); padding-bottom: var(--sec) !important; }
+/* shop / stay / rooms use clamped overrides defined in section 12 above */
+body #shop  { padding-top: var(--sec); /* padding-bottom set via section 12 rule */ }
+body #stay  { padding-top: clamp(32px, 5vh, 56px) !important; padding-bottom: clamp(32px, 5vh, 56px) !important; }
+body #rooms { padding-top: clamp(24px, 4vh, 48px) !important; padding-bottom: clamp(80px, 10vh, 120px) !important; }
 body .section-head { margin: 0 auto 48px; max-width: 700px; }
 
 /* every two-column block: equal columns, text left-aligned, vertically centred */
@@ -2811,7 +2853,8 @@ body #shop .products-grid          { gap: 28px; }
    ========================================================================== */
 .rooms-filter-wrapper { display: flex; justify-content: center; margin-bottom: 36px; }
 
-.horizon-slat-container { position: relative; max-width: 1180px; margin: 0 auto; height: 500px; padding: 0; outline: none; }
+/* --- Expand Rooms Showcase Accordion Stage --- */
+.horizon-slat-container { position: relative; max-width: 1240px; margin: 0 auto; height: clamp(500px, 62vh, 580px) !important; padding: 0; outline: none; overflow: visible; }
 .horizon-slat__stage    { display: flex; gap: 14px; height: 100%; }
 
 .rooms-panel {
@@ -2820,7 +2863,7 @@ body #shop .products-grid          { gap: 28px; }
     transition: flex-grow .75s cubic-bezier(.65, 0, .2, 1), box-shadow .5s ease;
     box-shadow: 0 10px 24px rgba(30, 60, 72, .16);
 }
-.rooms-panel.is-active { flex-grow: 6; box-shadow: 0 24px 48px rgba(30, 60, 72, .28); }
+.rooms-panel.is-active { flex-grow: 5.5; box-shadow: 0 24px 48px rgba(30, 60, 72, .28); }
 .rooms-panel:focus-visible { outline: 3px solid var(--stay-500); outline-offset: 3px; }
 
 .rooms-panel__img {
@@ -2842,7 +2885,7 @@ body #shop .products-grid          { gap: 28px; }
 .rooms-panel.is-active .rooms-panel__side { opacity: 0; }
 
 /* open state: tag + title rise in after the panel has opened */
-.rooms-panel__content { position: absolute; left: 36px; right: 36px; bottom: 32px; text-align: left; color: #fff; pointer-events: none; }
+.rooms-panel__content { position: absolute; left: clamp(24px, 3.5vw, 44px); right: clamp(24px, 3.5vw, 44px); bottom: clamp(24px, 3.5vw, 38px); text-align: left; color: #fff; pointer-events: none; }
 .rooms-panel__tag   { display: block; font-size: .8rem; font-weight: 600; letter-spacing: .1em; color: #CFE6EC; margin-bottom: 8px; opacity: 0; transform: translateY(14px); transition: opacity .4s ease, transform .5s ease; }
 .rooms-panel__title { display: block; font-family: var(--font-display); font-weight: 500; font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: 1.1; opacity: 0; transform: translateY(22px); transition: opacity .5s ease, transform .6s ease; }
 .rooms-panel.is-active .rooms-panel__tag   { opacity: 1; transform: none; transition-delay: .45s; }
@@ -3050,14 +3093,14 @@ body .visit-grid { grid-template-columns: 1fr 1fr; gap: 64px; align-items: stret
 .rv-head { display: flex; justify-content: center; }
 .rv-board { display: block; width: min(100%, 620px); height: auto; }
 
-.rv-hang { width: min(100%, 1320px); margin: 6px auto 0; padding: 0 clamp(12px, 3vw, 40px); }
+.rv-hang { width: min(100%, 1320px); margin: 6px auto 0; padding: 0 clamp(12px, 3vw, 40px); overflow-x: clip; }
 .rv-row { margin-top: 18px; }
 .rv-row-inner {
     position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: clamp(10px, 1.6vw, 24px); padding-top: 26px;
 }
 .rv-rope {
-    position: absolute; left: -10px; right: -10px; top: 14px; height: 7px; border-radius: 7px; z-index: 2;
+    position: absolute; left: 0 !important; right: 0 !important; top: 14px; height: 7px; border-radius: 7px; z-index: 2;
     background: repeating-linear-gradient(115deg, #8a6240 0 7px, #6b4630 7px 14px);
     box-shadow: 0 3px 6px rgba(58, 36, 24, .25);
 }
@@ -3116,4 +3159,427 @@ body .visit-grid { grid-template-columns: 1fr 1fr; gap: 64px; align-items: stret
 @media (prefers-reduced-motion: reduce) {
     .rv-swing { animation: none; }
     .rv-card { opacity: 1; transform: none; }
+}
+
+/* --- Stay Amenities Soft Blue Theme & Badge Placement --- */
+.cot-media-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.cot-features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 20px 0 24px;
+}
+
+.cot-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: rgba(228, 241, 245, 0.75); /* Soft, readable sky-tint */
+    border: 1px solid rgba(47, 90, 103, 0.22);
+    box-shadow: 0 4px 12px rgba(47, 90, 103, 0.05);
+}
+
+.cot-feat-icon {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    color: var(--stay-700);
+    flex-shrink: 0;
+}
+
+.cot-feat-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.cot-feature-item strong {
+    display: block;
+    font-size: 0.88rem;
+    color: var(--stay-700);
+    line-height: 1.2;
+}
+
+.cot-feature-item span {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+}
+
+.cot-badges-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cot-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--stay-100);
+    color: var(--stay-700);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.cot-pill-badge--accent {
+    background: #E5F3D8;
+    color: #2F6322;
+}
+
+.cot-cta-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+    .cot-features-grid { grid-template-columns: 1fr; }
+    .cot-cta-group { flex-direction: column; align-items: flex-start; }
+}
+
+/* --- Typographic Breaks & Blackboard Spacing --- */
+.ad-title-break {
+    line-height: 1.15 !important;
+    white-space: normal;
+    max-width: 620px;
+    margin-top: 6px;
+    margin-bottom: 26px;
+}
+
+#art-director,
+.ad-section {
+    padding-bottom: 160px !important; /* Generous breathing room above Google Reviews */
+}
+
+.ad-article-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.ad-article-copy h4 {
+    color: #ffffff;
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+}
+
+/* --- Scroll-Triggered Reveal Animation (Smooth Editorial Entrance) --- */
+.reveal .ad-subtitle,
+.reveal .ad-journey-note,
+.reveal .ad-article-card {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+.reveal.is-in .ad-subtitle {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.1s;
+}
+
+.reveal.is-in .ad-journey-note {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.25s;
+}
+
+.reveal.is-in .ad-article-card {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.2s;
+}
+
+.story-fade-item {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-in .story-fade-item:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.15s; }
+.reveal.is-in .story-fade-item:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.25s; }
+.reveal.is-in .story-fade-item:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.35s; }
+.reveal.is-in .story-fade-item:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.45s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal .ad-subtitle,
+    .reveal .ad-journey-note,
+    .reveal .ad-article-card,
+    .story-fade-item {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+/* =========================================================
+   STORY SECTION COLOR HARMONY & HIGHLIGHTS
+========================================================= */
+
+/* Warm honey/brown color for the big story titles */
+.ad-section .ad-subtitle {
+    color: #F2B676 !important;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.95);
+}
+
+/* Warm roasted-honey color for list item titles */
+.ad-journey-list li strong {
+    color: #F2B676 !important;
+    font-weight: 700;
+}
+
+/* Highlight lead text and colon styling */
+.ad-journey-list li .story-lead-title {
+    color: #E6A25C;
+    font-weight: 700;
+}
+
+/* =========================================================
+   NAV CART BUTTON & SLIDE-OVER DRAWER
+========================================================= */
+
+.nav-cart-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(22, 38, 18, 0.55);
+    color: #ffffff;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: transform 0.2s ease, background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.nav.is-stuck .nav-cart-btn {
+    background: #ffffff;
+    color: var(--green-800);
+    border-color: rgba(60, 83, 53, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.nav-cart-btn:hover {
+    transform: scale(1.08);
+}
+
+.nav-cart-badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--honey);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 18px;
+    text-align: center;
+    padding: 0 4px;
+    border: 2px solid #ffffff;
+}
+
+/* Backdrop Overlay */
+.cart-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4500;
+    background: rgba(10, 18, 10, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.cart-drawer-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sliding Drawer Panel */
+.cart-drawer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(440px, 92vw);
+    height: 100%;
+    background: #FAF8F2;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cart-drawer-overlay.is-open .cart-drawer {
+    transform: translateX(0);
+}
+
+.cart-drawer__header {
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(60, 83, 53, 0.12);
+    background: #ffffff;
+}
+
+.cart-drawer__eyebrow {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green-600);
+    display: block;
+}
+
+.cart-drawer__title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--green-800);
+    margin-top: 2px;
+}
+
+.cart-drawer__close {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(60, 83, 53, 0.08);
+    font-size: 1.5rem;
+    color: var(--green-800);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.cart-drawer__close:hover {
+    background: rgba(60, 83, 53, 0.16);
+    transform: rotate(90deg);
+}
+
+.cart-drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cart-drawer__empty {
+    margin: auto 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink-soft);
+}
+
+.cart-empty-icon {
+    font-size: 3rem;
+}
+
+/* Individual Drawer Item */
+.cart-item-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(60, 83, 53, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.cart-item-row img {
+    width: 58px;
+    height: 58px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.cart-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cart-item-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--green-800);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cart-item-meta {
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+    margin-top: 2px;
+}
+
+.cart-item-remove {
+    background: none;
+    border: none;
+    color: #c95240;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 6px;
+}
+
+.cart-drawer__footer {
+    padding: 22px 28px;
+    background: #ffffff;
+    border-top: 1px solid rgba(60, 83, 53, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cart-drawer__summary {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+}
+
+.cart-drawer__summary strong {
+    color: var(--green-800);
+    font-weight: 700;
+}
+
+.cart-drawer__whatsapp-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.98rem;
 }
