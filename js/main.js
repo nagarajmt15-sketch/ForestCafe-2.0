@@ -107,14 +107,37 @@
   }());
 
   /* ======================================================================
-     2. Navbar: stuck state + scrollspy
+     2. Navbar: stuck state + dynamic surface detection
      ====================================================================== */
   (function navbar() {
     var nav = $('#nav');
+    var darkSections = [$('#art-director')].filter(Boolean);
 
     function onScroll() {
       if (!nav) return;
-      nav.classList.toggle('is-stuck', window.scrollY > 60);
+      var scrollY = window.scrollY;
+      var isStuck = scrollY > 40;
+      nav.classList.toggle('is-stuck', isStuck);
+
+      if (!isStuck) {
+        nav.classList.remove('nav--light-surface', 'nav--dark-surface');
+        return;
+      }
+
+      // Check if navbar currently overlaps a dark section
+      var navBottom = nav.getBoundingClientRect().bottom;
+      var isOverDark = darkSections.some(function(sec) {
+        var rect = sec.getBoundingClientRect();
+        return rect.top <= navBottom && rect.bottom >= 0;
+      });
+
+      if (isOverDark) {
+        nav.classList.add('nav--dark-surface');
+        nav.classList.remove('nav--light-surface');
+      } else {
+        nav.classList.add('nav--light-surface');
+        nav.classList.remove('nav--dark-surface');
+      }
     }
 
     onScroll();
