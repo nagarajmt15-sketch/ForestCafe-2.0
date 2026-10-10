@@ -1,20 +1,33 @@
 /* ==========================================================================
    Forest Cafe — main.js
    ========================================================================== */
+/* ---------- off-screen tracking: pause animations + timers of sections nobody can see ---------- */
+(function () {
+  'use strict';
+  window.fcInView = function (el) {
+    if (document.hidden) return false;
+    var s = el && el.closest ? el.closest('section, footer') : null;
+    return !s || !s.classList.contains('is-offscreen');
+  };
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { en.target.classList.toggle('is-offscreen', !en.isIntersecting); });
+  }, { rootMargin: '160px 0px' });
+  Array.prototype.forEach.call(document.querySelectorAll('main > section, footer'), function (s) { io.observe(s); });
+}());
+
 (function () {
   'use strict';
 
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // images are already .webp / .jpg in /images — nothing to probe for
-  function getPreferredImageSource(src) { return Promise.resolve(src); }
 
   /* ---------- scroll lock ---------- */
   // The page is locked ONLY while something is really open. (The old counter drifted:
   // next/prev inside the photo viewer locked again each time, close unlocked once,
   // so the page stayed stuck after closing.)
-  var OVERLAYS = '.modal.is-open, .lightbox.is-open, .room-modal.is-open, .pm.is-open, .lg.is-open, .nav-links.is-open, #preloader:not(.is-done)';
+  var OVERLAYS = '.modal.is-open, .lightbox.is-open, .pm.is-open, .lg.is-open, .nav-links.is-open, #preloader:not(.is-done)';
   function overlayOpen() { return !!document.querySelector(OVERLAYS); }
   function syncScroll() { document.body.classList.toggle('no-scroll', overlayOpen()); }
   function lockScroll() { syncScroll(); }
@@ -65,7 +78,6 @@
 
     // hard stop: nobody waits longer than 6 seconds for an intro
     setTimeout(finish, 6000);
-    $('#skipIntro') && $('#skipIntro').addEventListener('click', finish);
     window.addEventListener('load', function () {
       setTimeout(function () { if (!finished && loadVid && !loadVid.duration) finish(); }, 1500);
     });
@@ -144,145 +156,10 @@
     items.forEach(function (el) { io.observe(el); });
   }());
 
-  /* ======================================================================
-     5. Customer reviews slider
-     ====================================================================== */
-  (function reviewsSlider() {
-    var section = $('#customer-reviews');
-    if (!section) return;
-
-    var viewport = section.querySelector('.reviews-viewport');
-    var track = section.querySelector('.reviews-track');
-    var cards = Array.prototype.slice.call(section.querySelectorAll('.review-card'));
-    var prev = section.querySelector('.reviews-control--prev');
-    var next = section.querySelector('.reviews-control--next');
-    var dotsWrap = section.querySelector('.reviews-dots');
-
-    if (!viewport || !track || !cards.length) return;
-
-    var state = {
-      index: 0,
-      touchStartX: 0,
-      touchEndX: 0
-    };
-    var autoTimer = null;
-
-    function getVisibleCards() {
-      return window.innerWidth <= 700 ? 1 : window.innerWidth <= 900 ? 2 : 3;
-    }
-
-    function getGap() {
-      var styles = window.getComputedStyle(track);
-      return parseFloat(styles.gap || '0') || 0;
-    }
-
-    function getSlideWidth() {
-      return cards[0].getBoundingClientRect().width + getGap();
-    }
-
-    function buildDots() {
-      if (!dotsWrap) return;
-      dotsWrap.innerHTML = '';
-      var maxIndex = Math.max(cards.length - getVisibleCards(), 0);
-      for (var i = 0; i <= maxIndex; i++) {
-        var dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'reviews-dot' + (i === 0 ? ' is-active' : '');
-        dot.setAttribute('aria-label', 'Go to review slide ' + (i + 1));
-        dot.addEventListener('click', function () {
-          state.index = Number(this.dataset.index);
-          updateSlider();
-        });
-        dot.dataset.index = String(i);
-        dotsWrap.appendChild(dot);
-      }
-    }
-
-    function updateSlider() {
-      var visibleCards = getVisibleCards();
-      var maxIndex = Math.max(cards.length - visibleCards, 0);
-      state.index = Math.min(Math.max(state.index, 0), maxIndex);
-
-      track.style.setProperty('--review-columns', visibleCards);
-      var move = state.index * getSlideWidth();
-      track.style.transform = 'translateX(-' + move + 'px)';
-
-      if (prev) prev.disabled = false;
-      if (next) next.disabled = false;
-
-      var dots = dotsWrap ? dotsWrap.querySelectorAll('.reviews-dot') : [];
-      dots.forEach(function (dot, idx) {
-        dot.classList.toggle('is-active', idx === state.index);
-      });
-    }
-
-    function move(direction) {
-      var visibleCards = getVisibleCards();
-      var maxIndex = Math.max(cards.length - visibleCards, 0);
-      if (maxIndex === 0) return;
-
-      if (direction > 0 && state.index >= maxIndex) {
-        state.index = 0;
-      } else if (direction < 0 && state.index <= 0) {
-        state.index = maxIndex;
-      } else {
-        state.index = Math.min(Math.max(state.index + direction, 0), maxIndex);
-      }
-
-      updateSlider();
-    }
-
-    function stopAuto() {
-      if (autoTimer) {
-        clearInterval(autoTimer);
-        autoTimer = null;
-      }
-    }
-
-    function startAuto() {
-      if (reduceMotion) return;
-      stopAuto();
-      var visibleCards = getVisibleCards();
-      var maxIndex = Math.max(cards.length - visibleCards, 0);
-      if (maxIndex <= 0) return;
-      autoTimer = setInterval(function () {
-        state.index = state.index >= maxIndex ? 0 : state.index + 1;
-        updateSlider();
-      }, 5000);
-    }
-
-    if (prev) prev.addEventListener('click', function () { stopAuto(); move(-1); startAuto(); });
-    if (next) next.addEventListener('click', function () { stopAuto(); move(1); startAuto(); });
-
-    viewport.addEventListener('touchstart', function (event) {
-      state.touchStartX = event.touches[0].clientX;
-    }, { passive: true });
-
-    viewport.addEventListener('touchend', function (event) {
-      state.touchEndX = event.changedTouches[0].clientX;
-      var delta = state.touchEndX - state.touchStartX;
-      if (Math.abs(delta) > 50) {
-        stopAuto();
-        move(delta < 0 ? 1 : -1);
-        startAuto();
-      }
-    }, { passive: true });
-
-    window.addEventListener('resize', function () {
-      buildDots();
-      updateSlider();
-      startAuto();
-    });
-
-    buildDots();
-    updateSlider();
-    startAuto();
-  }());
-
   var galleryImages = [
-    'images/cafe/cafe-01.jpg', 'images/cafe/cafe-05.jpg', 'images/cafe/cafe-06.jpg',
-    'images/cafe/cafe-11.jpg', 'images/cafe/cafe-14.jpg', 'images/cafe/cafe-18.jpg',
-    'images/cafe/cafe-19.jpg', 'images/cafe/cafe-20.jpg', 'images/cafe/cafe-22.jpg'
+    'images/cafe/cafe-01.webp', 'images/cafe/cafe-05.webp', 'images/cafe/cafe-06.webp',
+    'images/cafe/cafe-11.webp', 'images/cafe/cafe-14.webp', 'images/cafe/cafe-18.webp',
+    'images/cafe/cafe-19.webp', 'images/cafe/cafe-20.webp', 'images/cafe/cafe-22.webp'
   ];
 
   (function stack() {
@@ -307,7 +184,7 @@
 
     function startAuto() {
       stopAuto();
-      autoTimer = setInterval(next, 2800);
+      autoTimer = setInterval(function () { if (window.fcInView(wrapper)) next(); }, 2800);
     }
     function stopAuto() {
       if (autoTimer) clearInterval(autoTimer);
@@ -328,6 +205,8 @@
     if (wrapper) {
       wrapper.addEventListener('mouseenter', stopAuto);
       wrapper.addEventListener('mouseleave', startAuto);
+      wrapper.addEventListener('touchstart', stopAuto, { passive: true });
+      wrapper.addEventListener('touchend', startAuto, { passive: true });
     }
 
     startAuto();
@@ -364,10 +243,7 @@
   function openLightbox(i) {
     if (!lb) return;
     lbIndex = (i + galleryImages.length) % galleryImages.length;
-    var selected = galleryImages[lbIndex];
-    getPreferredImageSource(selected).then(function (resolved) {
-      lbImg.src = resolved;
-    });
+    lbImg.src = galleryImages[lbIndex];
     lbImg.alt = 'Forest Cafe photo ' + (lbIndex + 1) + ' of ' + galleryImages.length;
     lbCounter.textContent = (lbIndex + 1) + ' / ' + galleryImages.length;
     lb.classList.add('is-open');
@@ -407,70 +283,10 @@
     if (!modal) return;
     function open() { modal.classList.add('is-open'); lockScroll(); }
     function close() { modal.classList.remove('is-open'); unlockScroll(); }
-    ($('#openMenuModal') || $('#viewMenuBtn')) && ($('#openMenuModal') || $('#viewMenuBtn')).addEventListener('click', open);
-    $('#viewMenuBtn') && $('#viewMenuBtn') !== $('#openMenuModal') && $('#viewMenuBtn').addEventListener('click', open);
+    var openBtn = $('#openMenuModal');
+    if (openBtn) openBtn.addEventListener('click', open);
     $('#closeMenuModal').addEventListener('click', close);
     modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
-  }());
-
-  /* ======================================================================
-     7. Room tabs + room modal
-     ====================================================================== */
-  (function rooms() {
-    var tabs = $$('.room-tab');
-    tabs.forEach(function (tab) {
-      tab.addEventListener('click', function () {
-        tabs.forEach(function (t) {
-          var on = t === tab;
-          t.classList.toggle('is-active', on);
-          t.setAttribute('aria-selected', String(on));
-        });
-        $$('.room-grid').forEach(function (g) {
-          g.classList.toggle('is-active', g.id === 'grid-' + tab.dataset.room);
-        });
-      });
-    });
-
-    var modal = $('#roomModal');
-    if (!modal) return;
-
-    function close() { modal.classList.remove('is-open'); unlockScroll(); }
-
-    $$('.room-card').forEach(function (card) {
-      card.addEventListener('click', function () {
-        $('#roomModalImg').src = card.dataset.image;
-        $('#roomModalImg').alt = card.dataset.title + ', ' + card.dataset.category;
-        $('#roomModalTitle').textContent = card.dataset.title;
-        $('#roomModalDesc').textContent = card.dataset.desc;
-        modal.classList.add('is-open');
-        lockScroll();
-      });
-    });
-
-    $('#roomModalClose').addEventListener('click', close);
-    modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
-  }());
-
-  /* ======================================================================
-     8. Newsletter
-     ====================================================================== */
-  (function newsletter() {
-    var form = $('#newsletterForm');
-    if (!form) return;
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var input = $('#nlEmail');
-      var msg = $('#newsletterMsg');
-      var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(input.value.trim());
-      if (!ok) {
-        msg.style.color = '#E6A07A';
-        msg.textContent = 'That email does not look right.';
-        return;
-      }
-      msg.style.color = '#9DC77F';
-      msg.textContent = 'Done. First letter goes out on the 1st.';
-      input.value = '';
-    });
   }());
 
   /* ======================================================================
@@ -478,7 +294,7 @@
      ====================================================================== */
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-      var open = $('.modal.is-open, .lightbox.is-open, .room-modal.is-open');
+      var open = $('.modal.is-open, .lightbox.is-open');
       if (!open) return;
       open.classList.remove('is-open');
       unlockScroll();
@@ -980,7 +796,7 @@
     function startAutoLoop() {
         stopAutoLoop();
         autoTimer = setInterval(() => {
-            select(i + 1, 1);
+            if (window.fcInView(root)) select(i + 1, 1);
         }, 2000);
     }
 
@@ -1118,6 +934,7 @@
             measure();
             syncRest();
             field.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            startLoop();
         }
     });
 
@@ -1251,8 +1068,14 @@
     let vt = 0;
     let idleFrames = 0;
 
+    let rafId = 0;
+    function startLoop() { if (!rafId) rafId = requestAnimationFrame(tick); }
+
     function tick() {
-        if (isDrawerActive) {
+        rafId = 0;
+        if (!isDrawerActive) return;           // drawer closed → loop stops completely
+        if (!window.fcInView(field)) { rafId = requestAnimationFrame(tick); return; }
+        {
             const dx = cursor.x - cursor.lastX;
             const dy = cursor.y - cursor.lastY;
             cursor.vx = cursor.vx * 0.6 + dx * 0.4;
@@ -1288,15 +1111,13 @@
                 }
             }
         }
-        requestAnimationFrame(tick);
+        rafId = requestAnimationFrame(tick);
     }
 
     window.addEventListener("resize", () => {
         measure();
         syncRest();
     });
-
-    requestAnimationFrame(tick);
 })();
 
 
@@ -1455,6 +1276,10 @@
 
     function next() {
 
+        if (!window.fcInView(scope)) {
+            return;
+        }
+
         active =
             (active + 1) %
             items.length;
@@ -1518,3 +1343,79 @@
     start();
 
 }());
+
+/* ==========================================================================
+   MOBILE EXTRAS — quick-action bar · open-now badge · staggered reveals ·
+   Soil to Sip entrance
+   ========================================================================== */
+(() => {
+    const $ = (s, c) => (c || document).querySelector(s);
+    const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /* ---------- 1. Open-now badge (India time, Tue closed, 9:30 am – 7:00 pm) ---------- */
+    (function openNow() {
+        const badge = $("#openBadge");
+        if (!badge) return;
+        function update() {
+            let day = "", mins = 0;
+            try {
+                const parts = new Intl.DateTimeFormat("en-US", {
+                    timeZone: "Asia/Kolkata", weekday: "short", hour: "numeric", minute: "numeric", hour12: false
+                }).formatToParts(new Date());
+                const get = t => (parts.find(p => p.type === t) || {}).value || "0";
+                day = get("weekday");
+                mins = (parseInt(get("hour"), 10) % 24) * 60 + parseInt(get("minute"), 10);
+            } catch (_) { return; }
+            const OPEN = 9 * 60 + 30, CLOSE = 19 * 60;
+            const open = day !== "Tue" && mins >= OPEN && mins < CLOSE;
+            badge.hidden = false;
+            badge.classList.toggle("is-closed", !open);
+            badge.textContent = open ? "Open now" : "Closed now";
+        }
+        update();
+        setInterval(update, 60000);
+    }());
+
+    /* ---------- 2. Quick-action bar: appears after the hero, hides while a popup is open ---------- */
+    (function quickBar() {
+        const bar = $("#mBar");
+        if (!bar) return;
+        document.body.classList.add("has-mbar");
+        let ticking = false;
+        function update() {
+            ticking = false;
+            bar.classList.toggle("is-on", window.scrollY > window.innerHeight * 0.6);
+        }
+        window.addEventListener("scroll", () => {
+            if (!ticking) { ticking = true; requestAnimationFrame(update); }
+        }, { passive: true });
+        update();
+    }());
+
+    /* ---------- 3. Staggered entrance for grids & lists ---------- */
+    (function stagger() {
+        const sel = [".products-grid", ".menu-list", ".pill-row", ".gallery-grid", ".about-stats",
+            ".cot-features-grid", ".farm-features-grid", ".ad-journey-list", ".ad-story-stats", ".contact-list"];
+        $$(sel.join(",")).forEach(box => {
+            box.classList.add("stg");
+            Array.from(box.children).forEach((c, i) => c.style.setProperty("--k", String(Math.min(i, 8))));
+        });
+    }());
+
+    /* ---------- 4. Soil to Sip: stages rise in one by one (vertical layout) ---------- */
+    (function soilToSip() {
+        const section = $("#soil-to-sip");
+        if (!section || reduce || !("IntersectionObserver" in window)) return;
+        const stages = $$(".sts-stage", section);
+        section.classList.add("sts-anim");
+        const io = new IntersectionObserver((entries, o) => {
+            entries.forEach(en => {
+                if (!en.isIntersecting) return;
+                en.target.classList.add("is-in");
+                o.unobserve(en.target);
+            });
+        }, { threshold: 0.2, rootMargin: "0px 0px -8% 0px" });
+        stages.forEach(s => io.observe(s));
+    }());
+})();

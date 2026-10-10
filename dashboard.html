@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>Forest Cafe CMS Dashboard</title>
-  <link href="logo.png" rel="icon" type="image/png" />
+  <link href="logo.webp" rel="icon" type="image/webp" />
   <style>
     :root {
       --bg: #f5f1e9;
@@ -120,12 +121,7 @@
     }
 
     .sidebar li {
-      background: var(--green-soft);
-      border: 1px solid rgba(37,60,32,0.08);
-      border-radius: 16px;
-      padding: 12px 14px;
-      color: var(--green);
-      font-weight: 600;
+      padding: 0;
     }
 
     .content {
@@ -258,6 +254,62 @@
       min-height: 22px;
     }
 
+
+    html { scroll-behavior: smooth; }
+    section[id] { scroll-margin-top: 20px; }
+
+    .sidebar a {
+      display: block;
+      text-decoration: none;
+      background: var(--green-soft);
+      border: 1px solid rgba(37,60,32,0.08);
+      border-radius: 16px;
+      padding: 12px 14px;
+      color: var(--green);
+      font-weight: 600;
+    }
+    .sidebar a:hover, .sidebar a:focus-visible { background: #d3e2cd; outline: none; }
+
+    .chips { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 22px; }
+    .chip {
+      font-size: 0.82rem; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+      background: #f3e7d3; color: #6d5a2e; border: 1px solid rgba(37,60,32,0.08);
+    }
+    .chip.ok { background: var(--green-soft); color: var(--green); }
+
+    .howto {
+      background: #fff8e8; border: 1px solid rgba(216,168,92,0.5); border-radius: 16px;
+      padding: 14px 16px; margin-bottom: 24px; font-size: 0.92rem; line-height: 1.55; color: #4b4126;
+    }
+    .howto ol { margin: 6px 0 0; padding-left: 20px; }
+
+    .block-title { grid-column: span 2; margin: 14px 0 0; font-size: 1.15rem; color: var(--green); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .hint { grid-column: span 2; margin: -8px 0 0; font-size: 0.85rem; color: var(--muted); }
+
+    .menu-editor { display: grid; gap: 10px; }
+    .menu-cat { border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,0.7); padding: 4px 12px 10px; }
+    .menu-cat summary { cursor: pointer; font-weight: 700; color: var(--green); padding: 10px 2px; }
+    .price-row {
+      display: grid; grid-template-columns: 1fr auto 130px; align-items: center; gap: 12px;
+      padding: 8px 10px; border-radius: 12px; border: 1px solid transparent;
+    }
+    .price-row:nth-child(odd) { background: #faf7f2; }
+    .price-row label { font-weight: 600; color: var(--ink); }
+    .price-row .price-default { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+    .price-row input { padding: 8px 10px; border-radius: 10px; }
+    .price-row.is-changed { border-color: var(--honey); background: #fff4dc; }
+
+    .status.is-error { color: #a12b1c; }
+    .file-btn input { display: none; }
+    .file-btn { cursor: pointer; }
+    button:focus-visible, .secondary-link:focus-visible, summary:focus-visible { outline: 3px solid rgba(37,60,32,0.35); outline-offset: 2px; }
+
+    @media (max-width: 560px) {
+      .price-row { grid-template-columns: 1fr 110px; }
+      .price-row .price-default { grid-column: 1; grid-row: 2; }
+      .price-row input { grid-column: 2; grid-row: 1 / span 2; }
+    }
+
     @media (max-width: 840px) {
       .layout {
         grid-template-columns: 1fr;
@@ -267,7 +319,7 @@
         grid-template-columns: 1fr;
       }
 
-      .field, .field.half {
+      .field, .field.half, .block-title, .hint {
         grid-column: span 1;
       }
     }
@@ -277,11 +329,11 @@
   <header class="topbar">
     <div class="shell topbar-inner">
       <div class="brand">
-        <img class="brand-logo" src="logo.png" alt="Forest Cafe logo" />
+        <img class="brand-logo" src="logo.webp" alt="Forest Cafe logo" />
         <span>Forest Cafe CMS</span>
       </div>
       <nav class="nav-links" aria-label="Dashboard navigation">
-        <a href="index.html">Preview Site</a>
+        <a href="index.html?preview=1" target="_blank" rel="noopener">Preview draft</a>
         <a href="dashboard.html">Refresh</a>
       </nav>
     </div>
@@ -291,81 +343,110 @@
     <aside class="panel sidebar">
       <h2>Quick edit areas</h2>
       <ul>
-        <li>Hero headline</li>
-        <li>About us text</li>
-        <li>Contact phone</li>
-        <li>Email and social links</li>
+        <li><a href="#sec-hero">Hero headline</a></li>
+        <li><a href="#sec-about">About us text</a></li>
+        <li><a href="#sec-contact">Contact phone &amp; email</a></li>
+        <li><a href="#sec-social">Instagram &amp; WhatsApp</a></li>
+        <li><a href="#sec-menu">Menu prices</a></li>
+        <li><a href="#sec-products">Farm product availability</a></li>
       </ul>
     </aside>
 
     <section class="panel content">
       <h1>Site content dashboard</h1>
 
-      <form id="cmsForm">
+      <div class="chips" aria-live="polite">
+        <span class="chip" id="liveState">Checking live file&hellip;</span>
+        <span class="chip" id="draftState">Draft: &hellip;</span>
+      </div>
+
+      <div class="howto">
+        <strong>How to publish a change</strong>
+        <ol>
+          <li>Edit below and click <b>Save draft</b>.</li>
+          <li>Click <b>Preview draft</b> to see it on the real site (only you can see it).</li>
+          <li>Click <b>Download content.json</b> and upload it into the website&rsquo;s <code>data</code> folder (replace the old file). Then everyone sees the change.</li>
+        </ol>
+      </div>
+
+      <form id="cmsForm" novalidate>
         <div class="form-grid">
+
+          <h2 class="block-title" id="sec-hero">Hero</h2>
           <div class="field">
             <label for="heroTitle">Hero title</label>
-            <input id="heroTitle" name="heroTitle" type="text" />
+            <input id="heroTitle" name="heroTitle" type="text" maxlength="120" />
           </div>
-
           <div class="field">
             <label for="heroText">Hero text</label>
-            <textarea id="heroText" name="heroText"></textarea>
+            <textarea id="heroText" name="heroText" maxlength="600"></textarea>
           </div>
 
+          <h2 class="block-title" id="sec-about">About</h2>
           <div class="field">
             <label for="aboutTitle">About title</label>
-            <input id="aboutTitle" name="aboutTitle" type="text" />
+            <input id="aboutTitle" name="aboutTitle" type="text" maxlength="80" />
           </div>
-
           <div class="field">
             <label for="aboutText">About text</label>
-            <textarea id="aboutText" name="aboutText"></textarea>
+            <textarea id="aboutText" name="aboutText" maxlength="1200"></textarea>
           </div>
 
+          <h2 class="block-title" id="sec-contact">Contact</h2>
           <div class="field half">
             <label for="phoneText">Phone label</label>
             <input id="phoneText" name="phoneText" type="text" />
           </div>
-
           <div class="field half">
             <label for="phoneLink">Phone link</label>
-            <input id="phoneLink" name="phoneLink" type="text" />
+            <input id="phoneLink" name="phoneLink" type="text" placeholder="tel:+919444060619" />
           </div>
-
           <div class="field half">
             <label for="emailText">Email label</label>
             <input id="emailText" name="emailText" type="text" />
           </div>
-
           <div class="field half">
             <label for="emailLink">Email link</label>
-            <input id="emailLink" name="emailLink" type="text" />
+            <input id="emailLink" name="emailLink" type="text" placeholder="mailto:name@example.com" />
           </div>
 
+          <h2 class="block-title" id="sec-social">Social links</h2>
           <div class="field half">
             <label for="instaLink">Instagram link</label>
-            <input id="instaLink" name="instaLink" type="text" />
+            <input id="instaLink" name="instaLink" type="text" placeholder="https://www.instagram.com/..." />
           </div>
-
           <div class="field half">
             <label for="waLink">WhatsApp link</label>
-            <input id="waLink" name="waLink" type="text" />
+            <input id="waLink" name="waLink" type="text" placeholder="https://wa.me/91..." />
           </div>
 
+          <h2 class="block-title" id="sec-menu">Menu prices</h2>
+          <p class="hint">Type only the new price (for example <b>45</b>). Leave a box empty to keep the current price. Changed items turn yellow. You can also type text such as &ldquo;Market rate&rdquo;.</p>
           <div class="field">
-            <label>Farm product availability</label>
+            <div class="menu-editor" id="menuPriceEditor"></div>
+          </div>
+
+          <h2 class="block-title" id="sec-products">Farm products</h2>
+          <div class="field">
+            <label>Tick a product to show it as &ldquo;Currently unavailable&rdquo;</label>
             <div class="product-toggle-list" id="productAvailabilityList"></div>
           </div>
         </div>
 
         <div class="actions">
-          <button class="primary" type="submit">Save changes</button>
-          <button class="secondary" id="resetBtn" type="button">Reset to default</button>
-          <a class="secondary-link secondary" href="index.html">Open live site</a>
+          <button class="primary" type="submit">Save draft</button>
+          <a class="secondary-link secondary" href="index.html?preview=1" target="_blank" rel="noopener">Preview draft</a>
+          <button class="primary" id="downloadBtn" type="button">Download content.json</button>
+        </div>
+        <div class="actions">
+          <label class="secondary-link secondary file-btn">Load content.json
+            <input id="importFile" type="file" accept="application/json,.json" />
+          </label>
+          <button class="secondary" id="discardBtn" type="button">Discard draft</button>
+          <button class="secondary" id="resetBtn" type="button">Reset to original</button>
         </div>
 
-        <div class="status" id="formStatus" aria-live="polite"></div>
+        <div class="status" id="formStatus" role="status" aria-live="polite"></div>
       </form>
     </section>
   </main>
