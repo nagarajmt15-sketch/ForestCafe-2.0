@@ -1,20 +1,19 @@
 /*!
- * Forest Cafe — lightweight CMS
+ * Forest Cafe - lightweight CMS (v3: database + product prices)
  *
  * How it works
- *  - Public site : loads  data/content.json  (if present) and applies ONLY the fields
- *                  that differ from the defaults below. Visitors never see drafts.
- *  - Dashboard   : edits are saved as a DRAFT in this browser (localStorage).
- *                  "Preview" shows the draft on the real site (index.html?preview=1).
- *                  "Download content.json" -> upload it to  data/content.json  on the host
- *                  to make the changes LIVE for everyone.
- *  - Later       : to remove the manual upload step, replace loadRemote()/ the download step
- *                  with a database call (Firebase / Supabase). The rest stays the same.
+ *  - Public site : reads the live content from the Firebase database (Firestore, public read),
+ *                  falls back to data/content.json, then to the values already inside index.html.
+ *                  The last good content is cached in the visitor's browser so the page does not flash.
+ *  - Dashboard   : owner signs in (Firebase Auth, email + password), edits, saves a DRAFT in this browser,
+ *                  previews it on the real site (index.html?preview=1) and clicks "Publish live".
+ *  - Config      : all Firebase keys live in js/firebase-config.js (dummy values until you paste your own).
+ *  - No SDK      : only plain fetch() calls to the Firebase REST APIs, so the public site stays light.
  */
 (function () {
   'use strict';
 
-  var DRAFT_KEY = 'forest-cafe-cms-draft-v2';
+  var DRAFT_KEY = 'forest-cafe-cms-draft-v3';
   var REMOTE_URL = 'data/content.json';
 
   // ---------- Defaults (what the HTML already contains) ----------
@@ -43,12 +42,13 @@
     youtubeLink: /^https:\/\//i
   };
 
-  // Farm-shop product cards (ids match data-id in index.html)
+  // Farm-shop product cards (ids match data-id in index.html).
+  // `sizes` must match the data-variants="400 g|700 g" of that card: each size gets its own price.
   var PRODUCTS = [
     { id: 'prod-1', name: 'Pure Coffee' },
     { id: 'prod-2', name: '70/30 Coffee Blend' },
     { id: 'prod-4', name: 'Tea Dust' },
-    { id: 'prod-5', name: 'Honey' },
+    { id: 'prod-5', name: 'Honey', sizes: ['400 g', '700 g'] },
     { id: 'prod-6', name: 'Curry Leaf Powder' },
     { id: 'prod-7', name: 'Idli Podi' },
     { id: 'prod-8', name: 'Maa Inji Thokku' },
@@ -294,18 +294,40 @@
     if (!v) return '';
     return /^\d+(\.\d{1,2})?$/.test(v) ? '\u20b9' + v : v;   // "25" -> "₹25", "Market rate" stays
   }
+  function priceNum(s) {
+    var m = /^\u20b9\s*(\d+(?:\.\d{1,2})?)$/.exec(String(s || '').trim());
+    return m ? parseFloat(m[1]) : null;
+  }
+  function money(n) { return '\u20b9' + (n % 1 ? n.toFixed(2) : String(n)); }
+  window.fcPriceNum = priceNum;
+  window.fcMoney = money;
 
   var DEFAULT_PRICE = {};
   var MENU_IDS = {};
   MENU.forEach(function (cat) {
     cat.items.forEach(function (it) { DEFAULT_PRICE[it.id] = it.price; MENU_IDS[it.id] = true; });
   });
+
+  // Farm-shop price keys: "prod-1" for one-size products, "prod-5|400 g" for sized ones
+  function priceKey(pid, size) { return size ? pid + '|' + size : pid; }
+  function productKeys(p) {
+    return (p.sizes && p.sizes.length) ? p.sizes.map(function (s) { return priceKey(p.id, s); }) : [p.id];
+  }
   var PRODUCT_IDS = {};
-  PRODUCTS.forEach(function (p) { PRODUCT_IDS[p.id] = true; });
+  var PRODUCT_PRICE_KEYS = {};
+  PRODUCTS.forEach(function (p) {
+    PRODUCT_IDS[p.id] = true;
+    productKeys(p).forEach(function (k) { PRODUCT_PRICE_KEYS[k] = true; });
+  });
 
-  function emptyContent() { return { version: 2, text: {}, prices: {}, unavailable: {} }; }
+  window.fcGetPrice = function (id, size) {
+    var map = window.FC_PRODUCT_PRICES || {};
+    return map[priceKey(id, size)] || '';
+  };
 
-  // Accept only known keys / safe values (protects the site from a broken or edited JSON file)
+  function emptyContent() { return { version: 3, text: {}, prices: {}, productPrices: {}, unavailable: {} }; }
+
+  // Accept only known keys / safe values (protects the site from a broken or edited JSON)
   function clean(raw) {
     var out = emptyContent();
     if (!raw || typeof raw !== 'object') return out;
@@ -323,6 +345,12 @@
       var v = formatPrice(pr[id]);
       if (v) out.prices[id] = v;
     });
+    var pp = raw.productPrices || {};
+    Object.keys(pp).forEach(function (k) {
+      if (!PRODUCT_PRICE_KEYS[k]) return;
+      var v = formatPrice(pp[k]);
+      if (v) out.productPrices[k] = v;
+    });
     var un = raw.unavailable || {};
     Object.keys(un).forEach(function (id) {
       if (PRODUCT_IDS[id] && un[id] === true) out.unavailable[id] = true;
@@ -331,11 +359,8 @@
     return out;
   }
 
-  function isEmpty(c) {
-    return !Object.keys(c.text).length && !Object.keys(c.prices).length && !Object.keys(c.unavailable).length;
-  }
-
-  // ---------- Storage ----------
+  // ---------- Browser storage (draft + cache) ----------
+  var CACHE_KEY = 'forest-cafe-content-cache-v1';
   function loadDraft() {
     try {
       var raw = localStorage.getItem(DRAFT_KEY);
@@ -348,14 +373,152 @@
   function clearDraft() {
     try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
   }
+  function loadCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      return raw ? clean(JSON.parse(raw)) : null;
+    } catch (e) { return null; }
+  }
+  function saveCache(c) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(c)); } catch (e) {}
+  }
 
-  // The "live" content. Swap this function for a Firebase/Supabase read when a database is added.
-  function loadRemote() {
+  // ---------- Firebase (REST, no SDK) ----------
+  // Keys come from js/firebase-config.js. While they are still the DUMMY values, the DB is skipped.
+  var CFG = window.FOREST_FIREBASE || {};
+  var DB_READY = !!(CFG.apiKey && CFG.projectId && !/DUMMY|YOUR_/i.test(String(CFG.apiKey) + String(CFG.projectId)));
+  var KEY_QS = 'key=' + encodeURIComponent(CFG.apiKey || '');
+
+  function docUrl() {
+    return 'https://firestore.googleapis.com/v1/projects/' + encodeURIComponent(CFG.projectId) +
+      '/databases/(default)/documents/' + (CFG.collection || 'site') + '/' + (CFG.docId || 'content');
+  }
+
+  function fetchT(url, opts, ms) {
+    opts = opts || {};
+    if (typeof AbortController === 'undefined') return fetch(url, opts);
+    var ctl = new AbortController();
+    var timer = setTimeout(function () { ctl.abort(); }, ms || 8000);
+    opts.signal = ctl.signal;
+    return fetch(url, opts).then(
+      function (r) { clearTimeout(timer); return r; },
+      function (e) { clearTimeout(timer); throw e; }
+    );
+  }
+
+  function loadFromDb() {
+    if (!DB_READY || typeof fetch !== 'function') return Promise.reject(new Error('db not configured'));
+    return fetchT(docUrl() + '?' + KEY_QS, { cache: 'no-store' })
+      .then(function (res) {
+        if (res.status === 404) return null;          // nothing published yet
+        if (!res.ok) throw new Error('db ' + res.status);
+        return res.json();
+      })
+      .then(function (doc) {
+        var f = (doc && doc.fields) || {};
+        var raw = f.json && f.json.stringValue ? JSON.parse(f.json.stringValue) : null;
+        return { found: !!raw, content: clean(raw), source: 'database' };
+      });
+  }
+
+  function loadFromFile() {
     if (typeof fetch !== 'function') return Promise.resolve({ found: false, content: emptyContent() });
     return fetch(REMOTE_URL, { cache: 'no-cache' })
       .then(function (res) { if (!res.ok) throw new Error('not found'); return res.json(); })
-      .then(function (json) { return { found: true, content: clean(json) }; })
+      .then(function (json) { return { found: true, content: clean(json), source: 'file' }; })
       .catch(function () { return { found: false, content: emptyContent() }; });
+  }
+
+  // The "live" content: database first, then data/content.json, then nothing (built-in values stay)
+  function loadRemote() {
+    return loadFromDb()
+      .catch(function () { return { found: false }; })
+      .then(function (r) { return r && r.found ? r : loadFromFile(); });
+  }
+
+  // ----- owner sign-in + publish (dashboard only) -----
+  var SESSION_KEY = 'forest-cafe-cms-session';
+  var session = null;
+  function readSession() {
+    try {
+      var s = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+      return s && s.refreshToken ? s : null;
+    } catch (e) { return null; }
+  }
+  function storeSession(s) {
+    session = s;
+    try {
+      if (s) sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+      else sessionStorage.removeItem(SESSION_KEY);
+    } catch (e) {}
+  }
+  function friendlyAuthError(code) {
+    code = String(code || '');
+    if (/EMAIL_NOT_FOUND|INVALID_PASSWORD|INVALID_LOGIN_CREDENTIALS|INVALID_EMAIL/.test(code)) return 'Wrong email or password.';
+    if (/TOO_MANY_ATTEMPTS/.test(code)) return 'Too many attempts. Please wait a few minutes and try again.';
+    if (/USER_DISABLED/.test(code)) return 'This account is disabled.';
+    return 'Could not sign in. Check your internet and try again.';
+  }
+  function jsonResult(res) { return res.json().catch(function () { return {}; }).then(function (j) { return { ok: res.ok, j: j }; }); }
+
+  function signIn(email, password) {
+    return fetchT('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?' + KEY_QS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password, returnSecureToken: true })
+    }, 12000).then(jsonResult).then(function (r) {
+      if (!r.ok) throw new Error(friendlyAuthError(r.j && r.j.error && r.j.error.message));
+      storeSession({
+        idToken: r.j.idToken,
+        refreshToken: r.j.refreshToken,
+        expiresAt: Date.now() + (parseInt(r.j.expiresIn, 10) || 3600) * 1000 - 60000,
+        email: r.j.email
+      });
+      return session;
+    }, function () { throw new Error(friendlyAuthError('')); });
+  }
+
+  function getToken() {
+    if (!session) session = readSession();
+    if (!session) return Promise.reject(new Error('Please sign in again.'));
+    if (session.idToken && Date.now() < session.expiresAt) return Promise.resolve(session.idToken);
+    return fetchT('https://securetoken.googleapis.com/v1/token?' + KEY_QS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(session.refreshToken)
+    }, 12000).then(jsonResult).then(function (r) {
+      if (!r.ok) { storeSession(null); throw new Error('Session expired. Please sign in again.'); }
+      storeSession({
+        idToken: r.j.id_token,
+        refreshToken: r.j.refresh_token,
+        expiresAt: Date.now() + (parseInt(r.j.expires_in, 10) || 3600) * 1000 - 60000,
+        email: session.email
+      });
+      return session.idToken;
+    });
+  }
+
+  function signOut() { storeSession(null); }
+
+  // Stores the whole content as ONE json string field (simple, and keeps the public read tiny)
+  function publishToDb(content) {
+    return getToken().then(function (token) {
+      var body = { fields: {
+        json: { stringValue: JSON.stringify(content) },
+        updatedAt: { stringValue: content.updatedAt || new Date().toISOString() }
+      } };
+      return fetchT(docUrl() + '?updateMask.fieldPaths=json&updateMask.fieldPaths=updatedAt&' + KEY_QS, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(body)
+      }, 15000);
+    }).then(function (res) {
+      if (res.ok) return true;
+      var st = res.status;
+      throw new Error(st === 403 ? 'Not allowed to publish. Check the Firestore rules and the owner UID.'
+        : st === 401 ? 'Session expired. Please sign in again.'
+        : 'Database error (' + st + '). Please try again.');
+    });
   }
 
   // ---------- Apply to the public site ----------
@@ -364,11 +527,22 @@
   }
   function has(content, key) { return Object.prototype.hasOwnProperty.call(content.text, key); }
 
-  function setText(selector, value) {
-    document.querySelectorAll(selector).forEach(function (n) { n.textContent = value; });
+  // Remember what index.html originally had, so removing a change in the dashboard really reverts it
+  var ORIG = (typeof WeakMap === 'function') ? new WeakMap() : null;
+  function orig(n) {
+    if (!ORIG) return { html: n.innerHTML, href: n.getAttribute('href') };
+    var o = ORIG.get(n);
+    if (!o) { o = { html: n.innerHTML, href: n.getAttribute('href') }; ORIG.set(n, o); }
+    return o;
   }
-  function setHref(selector, value) {
-    document.querySelectorAll(selector).forEach(function (n) { n.setAttribute('href', value); });
+  function each(selector, fn) { document.querySelectorAll(selector).forEach(fn); }
+  function setText(selector, value) { each(selector, function (n) { orig(n); n.textContent = value; }); }
+  function restoreText(selector) { each(selector, function (n) { if (ORIG && ORIG.has(n)) n.innerHTML = ORIG.get(n).html; }); }
+  function setHref(selector, value) { each(selector, function (n) { orig(n); n.setAttribute('href', value); }); }
+  function restoreHref(selector) {
+    each(selector, function (n) {
+      if (ORIG && ORIG.has(n) && ORIG.get(n).href != null) n.setAttribute('href', ORIG.get(n).href);
+    });
   }
 
   function reorderProductCards() {
@@ -380,34 +554,71 @@
     avail.concat(gone).forEach(function (c) { grid.appendChild(c); });
   }
 
+  // Text shown on the product card: one price, or a range for sized products
+  function cardPriceText(p, map) {
+    var vals = [];
+    productKeys(p).forEach(function (k) { if (map[k]) vals.push(map[k]); });
+    if (!vals.length) return '';
+    var nums = vals.map(priceNum).filter(function (n) { return n != null; });
+    if (nums.length === vals.length) {
+      var mn = Math.min.apply(null, nums), mx = Math.max.apply(null, nums);
+      return mn === mx ? money(mn) : money(mn) + ' \u2013 ' + money(mx);
+    }
+    return vals[0];
+  }
+
   function applyToSite(content) {
     ['heroTitle', 'heroText', 'aboutTitle', 'aboutText'].forEach(function (k) {
-      if (has(content, k)) setText('[data-cms="' + k + '"]', content.text[k]);
+      var sel = '[data-cms="' + k + '"]';
+      if (has(content, k)) setText(sel, content.text[k]); else restoreText(sel);
     });
 
+    // phone (text + link on the same element)
+    var phoneSel = '[data-cms="phoneLink"]';
     if (has(content, 'phoneText') || has(content, 'phoneLink')) {
-      document.querySelectorAll('[data-cms="phoneLink"]').forEach(function (n) {
+      each(phoneSel, function (n) {
+        orig(n);
         n.setAttribute('href', eff(content, 'phoneLink'));
         n.textContent = eff(content, 'phoneText');
       });
-    }
-    if (has(content, 'phoneLink')) setHref('[data-cms-href="phoneLink"]', content.text.phoneLink);
+    } else { restoreText(phoneSel); restoreHref(phoneSel); }
 
+    // email (text + link on the same element)
+    var emailSel = '[data-cms="emailLink"]';
     if (has(content, 'emailText') || has(content, 'emailLink')) {
-      document.querySelectorAll('[data-cms="emailLink"]').forEach(function (n) {
+      each(emailSel, function (n) {
+        orig(n);
         n.setAttribute('href', eff(content, 'emailLink'));
         n.textContent = eff(content, 'emailText');
       });
-    }
-    if (has(content, 'instaLink')) setHref('[data-cms="instaLink"]', content.text.instaLink);
-    if (has(content, 'waLink')) setHref('[data-cms="waLink"]', content.text.waLink);
-    if (has(content, 'facebookLink')) setHref('[data-cms="facebookLink"]', content.text.facebookLink);
-    if (has(content, 'youtubeLink')) setHref('[data-cms="youtubeLink"]', content.text.youtubeLink);
+    } else { restoreText(emailSel); restoreHref(emailSel); }
+
+    // plain links
+    ['phoneLink', 'instaLink', 'waLink', 'facebookLink', 'youtubeLink'].forEach(function (k) {
+      var sel = '[data-cms-href="' + k + '"]' + (k === 'phoneLink' ? '' : ', [data-cms="' + k + '"]');
+      if (has(content, k)) setHref(sel, content.text[k]); else restoreHref(sel);
+    });
+
+    // every other wa.me link on the page (stay booking, art classes, bottom bar) keeps its own message,
+    // but follows the WhatsApp number set in the dashboard
+    var m = has(content, 'waLink') ? /wa\.me\/(\d+)/.exec(content.text.waLink) : null;
+    var waNum = m ? m[1] : '';
+    window.fcWaNumber = waNum;
+    each('a[href*="wa.me/"]', function (n) {
+      if (n.matches('[data-cms="waLink"]')) return;
+      var base = orig(n).href || '';
+      n.setAttribute('href', waNum ? base.replace(/wa\.me\/\d+/, 'wa.me/' + waNum) : base);
+    });
 
     // Menu prices
-    Object.keys(content.prices).forEach(function (id) {
-      var li = document.querySelector('#menu li[data-item="' + id + '"] .menu-price');
-      if (li) li.textContent = formatPrice(content.prices[id]);
+    MENU.forEach(function (cat) {
+      cat.items.forEach(function (it) {
+        var n = document.querySelector('#menu li[data-item="' + it.id + '"] .menu-price');
+        if (!n) return;
+        orig(n);
+        if (content.prices[it.id]) n.textContent = formatPrice(content.prices[it.id]);
+        else n.innerHTML = ORIG ? ORIG.get(n).html : n.innerHTML;
+      });
     });
 
     // Product availability
@@ -424,6 +635,16 @@
         badge.remove();
       }
     });
+
+    // Product prices (card + popup + WhatsApp message read from this)
+    window.FC_PRODUCT_PRICES = content.productPrices || {};
+    PRODUCTS.forEach(function (p) {
+      var node = document.querySelector('.product-price[data-price-for="' + p.id + '"]');
+      if (!node) return;
+      var t = cardPriceText(p, window.FC_PRODUCT_PRICES);
+      node.textContent = t;
+      node.hidden = !t;
+    });
     reorderProductCards();
   }
 
@@ -439,14 +660,17 @@
 
   function initSite() {
     var preview = /(?:^|[?&])preview=1(?:&|$)/.test(location.search);
+    if (preview) {
+      var d = loadDraft();
+      if (d) applyToSite(d);
+      showPreviewBadge();
+    } else {
+      var cached = loadCache();           // instant: last known live content, no flash of old text
+      if (cached) applyToSite(cached);
+    }
     loadRemote().then(function (r) {
-      var content = r.content;
-      if (preview) {
-        var draft = loadDraft();
-        if (draft) content = draft;
-        showPreviewBadge();
-      }
-      applyToSite(content);
+      if (preview) { applyToSite(loadDraft() || r.content); return; }
+      if (r.found) { saveCache(r.content); applyToSite(r.content); }
     });
   }
 
@@ -495,18 +719,41 @@
     return !!v && v !== DEFAULT_PRICE[id];
   }
 
+  // One card per product: unavailable tick + price box (one per size for sized products)
   function buildProductEditor() {
     var host = $('productAvailabilityList');
     if (!host) return;
     host.textContent = '';
     PRODUCTS.forEach(function (p) {
-      var row = el('div', 'product-toggle-row');
-      var lab = el('label', null, p.name);
-      lab.setAttribute('for', p.id);
+      var card = el('div', 'product-edit');
+      var head = el('div', 'product-edit-head');
+      head.appendChild(el('strong', null, p.name));
+      var off = el('label', 'product-off');
       var cb = document.createElement('input');
       cb.type = 'checkbox'; cb.id = p.id; cb.name = p.id;
-      row.appendChild(lab); row.appendChild(cb);
-      host.appendChild(row);
+      cb.addEventListener('change', function () { card.classList.toggle('is-off', cb.checked); });
+      off.appendChild(cb);
+      off.appendChild(document.createTextNode('Unavailable'));
+      head.appendChild(off);
+      card.appendChild(head);
+
+      productKeys(p).forEach(function (key, i) {
+        var row = el('div', 'product-price-row');
+        var lab = el('label', null, (p.sizes && p.sizes.length) ? 'Price for ' + p.sizes[i] : 'Price');
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.id = 'pprice-' + p.id + '-' + i;
+        inp.maxLength = 20;
+        inp.placeholder = 'e.g. 250';
+        inp.autocomplete = 'off';
+        inp.setAttribute('inputmode', 'decimal');
+        inp.setAttribute('data-pkey', key);
+        lab.setAttribute('for', inp.id);
+        inp.addEventListener('input', function () { row.classList.toggle('is-set', !!formatPrice(inp.value)); });
+        row.appendChild(lab); row.appendChild(inp);
+        card.appendChild(row);
+      });
+      host.appendChild(card);
     });
   }
 
@@ -526,7 +773,16 @@
     });
     PRODUCTS.forEach(function (p) {
       var cb = form.querySelector('[name="' + p.id + '"]');
-      if (cb) cb.checked = !!content.unavailable[p.id];
+      if (cb) {
+        cb.checked = !!content.unavailable[p.id];
+        var card = cb.closest('.product-edit');
+        if (card) card.classList.toggle('is-off', cb.checked);
+      }
+    });
+    form.querySelectorAll('[data-pkey]').forEach(function (inp) {
+      inp.value = (content.productPrices && content.productPrices[inp.getAttribute('data-pkey')]) || '';
+      var row = inp.closest('.product-price-row');
+      if (row) row.classList.toggle('is-set', !!inp.value);
     });
   }
 
@@ -555,6 +811,10 @@
       var cb = form.querySelector('[name="' + p.id + '"]');
       if (cb && cb.checked) c.unavailable[p.id] = true;
     });
+    form.querySelectorAll('[data-pkey]').forEach(function (inp) {
+      var v = formatPrice(inp.value);
+      if (v) c.productPrices[inp.getAttribute('data-pkey')] = v;
+    });
     return { content: c, errors: errors };
   }
 
@@ -564,17 +824,34 @@
     var statusEl = $('formStatus');
     var liveChip = $('liveState');
     var draftChip = $('draftState');
+    var gate = $('loginBox');
+    var app = $('dashMain');
+    var signOutBtn = $('signOutBtn');
+    var publishBtn = $('publishBtn');
+    var demoNote = $('demoNote');
     var remoteState = { found: false, content: emptyContent() };
 
     function say(msg, bad) {
       statusEl.textContent = msg;
       statusEl.classList.toggle('is-error', !!bad);
     }
+    function showApp(on) {
+      if (app) app.hidden = !on;
+      if (gate) gate.hidden = on;
+      if (signOutBtn) signOutBtn.hidden = !(on && DB_READY);
+    }
     function refreshChips() {
       var d = loadDraft();
-      liveChip.textContent = remoteState.found
-        ? 'Live file: data/content.json found' + (remoteState.content.updatedAt ? ' (updated ' + new Date(remoteState.content.updatedAt).toLocaleString() + ')' : '')
-        : 'Live file: none yet \u2014 the site shows its built-in values';
+      if (!DB_READY) {
+        liveChip.textContent = remoteState.found
+          ? 'Live file: data/content.json found'
+          : 'Live: none yet \u2014 the site shows its built-in values (database not connected)';
+      } else {
+        liveChip.textContent = remoteState.found
+          ? 'Live: ' + (remoteState.source === 'file' ? 'data/content.json' : 'database') +
+            (remoteState.content.updatedAt ? ' (updated ' + new Date(remoteState.content.updatedAt).toLocaleString() + ')' : '')
+          : 'Live: nothing published yet \u2014 the site shows its built-in values';
+      }
       liveChip.classList.toggle('ok', remoteState.found);
       draftChip.textContent = d ? 'Draft: saved on this device (not live)' : 'Draft: none';
       draftChip.classList.toggle('ok', !!d);
@@ -597,9 +874,60 @@
       refreshChips();
     });
 
+    // ----- login gate -----
+    if (!DB_READY) {
+      showApp(true);                                   // demo mode: no database yet, no login needed
+      if (demoNote) demoNote.hidden = false;
+      if (publishBtn) publishBtn.disabled = true;
+    } else {
+      showApp(false);
+      if (readSession()) {
+        getToken().then(function () { showApp(true); }, function () { showApp(false); });
+      }
+      var loginForm = $('loginForm');
+      var loginStatus = $('loginStatus');
+      var loginBtn = $('loginBtn');
+      loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = $('loginEmail').value.trim();
+        var pass = $('loginPassword').value;
+        if (!email || !pass) { loginStatus.textContent = 'Enter your email and password.'; loginStatus.classList.add('is-error'); return; }
+        loginBtn.disabled = true;
+        loginStatus.classList.remove('is-error');
+        loginStatus.textContent = 'Signing in\u2026';
+        signIn(email, pass).then(function () {
+          $('loginPassword').value = '';
+          loginStatus.textContent = '';
+          showApp(true);
+        }).catch(function (err) {
+          loginStatus.textContent = err.message;
+          loginStatus.classList.add('is-error');
+        }).then(function () { loginBtn.disabled = false; });
+      });
+      if (signOutBtn) signOutBtn.addEventListener('click', function () { signOut(); showApp(false); });
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (commit()) say('Draft saved. Click "Preview" to check it, then "Download content.json" to publish.');
+      if (commit()) say('Draft saved. Click "Preview draft" to check it, then "Publish live".');
+    });
+
+    if (publishBtn) publishBtn.addEventListener('click', function () {
+      if (!DB_READY) { say('The database is not connected yet. Use "Download backup" for now.', true); return; }
+      var c = commit();
+      if (!c) return;
+      if (!window.confirm('Publish these changes to the live website now?')) return;
+      publishBtn.disabled = true;
+      say('Publishing\u2026');
+      publishToDb(c).then(function () {
+        remoteState = { found: true, content: c, source: 'database' };
+        clearDraft();
+        refreshChips();
+        say('Published! The live website now shows these changes. Refresh the website to check.');
+      }).catch(function (err) {
+        say(err.message || 'Could not publish. Please try again.', true);
+        if (/sign in/i.test(err.message || '')) showApp(false);
+      }).then(function () { publishBtn.disabled = false; });
     });
 
     $('downloadBtn').addEventListener('click', function () {
@@ -613,7 +941,7 @@
       a.click();
       a.remove();
       setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-      say('content.json downloaded. Upload it to the "data" folder of the website (replace the old one) to make it live.');
+      say('Backup downloaded as content.json. Keep it somewhere safe.');
     });
 
     $('importFile').addEventListener('change', function (e) {
