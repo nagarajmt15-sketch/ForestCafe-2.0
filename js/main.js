@@ -1160,39 +1160,48 @@
     const SPAN = 1080;
 
     function getMobilePose() {
-        // 3 cards top (0, 1, 2) and 3 cards bottom (3, 4, 5) with slight tilt & overlap
-        const isPhone = phoneMQ.matches;
-        if (!isPhone) {
-            const spanWidth = Math.min(880, (count - 1) * 165);
-            const startX = -spanWidth / 2;
-            const stepX = count > 1 ? spanWidth / (count - 1) : 0;
-            return {
-                x: cardsEl.map((_, i) => startX + i * stepX),
-                y: cardsEl.map((_, i) => (i % 2 === 0 ? 18 : -14)),
-                rot: cardsEl.map((_, i) => {
-                    const progress = count > 1 ? (i / (count - 1)) * 2 - 1 : 0;
-                    return progress * 9 + (i % 2 === 0 ? -2 : 3);
-                })
-            };
-        }
+    const isPhone = phoneMQ.matches;
 
-        // Mobile: Two rows of 3 tilted cards with proper breathing space
-        const rowStepX = 108; // slightly wider to show more of each poster
+    if (!isPhone) {
+        const spanWidth = Math.min(880, (count - 1) * 165);
+        const startX = -spanWidth / 2;
+        const stepX = count > 1 ? spanWidth / (count - 1) : 0;
+
         return {
-            x: [
-                -rowStepX, 0, rowStepX,          // Row 1 (cards 0, 1, 2)
-                -rowStepX, 0, rowStepX           // Row 2 (cards 3, 4, 5)
-            ],
-            y: [
-                -112, -96, -108,                 // Row 1 vertical positions
-                 112,  128,  116                 // Row 2 vertical positions (ample vertical breathing gap)
-            ],
-            rot: [
-                -5, 2, -4,                       // Row 1 gentle tilt
-                 4, -3, 5                        // Row 2 gentle tilt
-            ]
+            x: cardsEl.map((_, i) => startX + i * stepX),
+            y: cardsEl.map((_, i) => (i % 2 === 0 ? 18 : -14)),
+            rot: cardsEl.map((_, i) => {
+                const progress = count > 1 ? (i / (count - 1)) * 2 - 1 : 0;
+                return progress * 9 + (i % 2 === 0 ? -2 : 3);
+            })
         };
     }
+
+    // Mobile: 3 posters on top and 4 posters below
+    const cardWidth = cardsEl[0]?.offsetWidth || 70;
+    const fieldWidth = field.clientWidth;
+
+    // Automatically calculate spacing to fit all 4 bottom posters
+    const rowStepX = Math.min(108, (fieldWidth - cardWidth) / 3);
+
+    return {
+        x: [
+            -rowStepX, 0, rowStepX,                         // Top: 3 posters
+            -1.5 * rowStepX, -0.5 * rowStepX,
+             0.5 * rowStepX, 1.5 * rowStepX                 // Bottom: 4 posters
+        ],
+
+        y: [
+            -110, -110, -110,                               // Top row
+             110,  110,  110,  110                          // Bottom row
+        ],
+
+        rot: [
+            -3, 0, 3,                                       // Top row
+            -3, -1, 1, 3                                    // Bottom row
+        ]
+    };
+}
 
     let POSE = getMobilePose();
 
