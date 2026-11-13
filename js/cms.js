@@ -93,7 +93,7 @@
   var MENU = [
     {
       "id": "hot",
-      "label": "Hot",
+      "label": "Hot Beverages",
       "items": [
         {
           "id": "hot-tea",
@@ -154,7 +154,7 @@
     },
     {
       "id": "cool",
-      "label": "Cool",
+      "label": "Cool Beverages",
       "items": [
         {
           "id": "cool-cold-coffee",
@@ -195,7 +195,7 @@
     },
     {
       "id": "brunch",
-      "label": "Brunch",
+      "label": "Bites",
       "items": [
         {
           "id": "brunch-chicken-roll",
@@ -236,7 +236,7 @@
     },
     {
       "id": "cakes",
-      "label": "Cake & cookies",
+      "label": "Bakery",
       "items": [
         {
           "id": "cakes-cup-cake",
@@ -267,7 +267,7 @@
     },
     {
       "id": "snacks",
-      "label": "Sweets & snacks",
+      "label": "Snacks",
       "items": [
         {
           "id": "snacks-butter-muruku",
@@ -283,7 +283,7 @@
     },
     {
       "id": "fresh",
-      "label": "Farm fresh",
+      "label": "Farm Specials",
       "items": [
         {
           "id": "fresh-honey-700-g",

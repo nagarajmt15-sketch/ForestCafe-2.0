@@ -1408,7 +1408,7 @@
         'Brownie',
         'Bread Omelette',
         'Cappuccino',
-        'Panner Roll',
+        'Paneer Roll',
         'Chocolate Cake'
     ];
 
