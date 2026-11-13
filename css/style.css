@@ -6024,6 +6024,7 @@ body #rooms { padding-top: clamp(24px, 4vh, 48px) !important; padding-bottom: cl
 .placeholder-movie-4 { background-image: url('../images/story/movie/jayam-4.webp') !important; }
 .placeholder-movie-5 { background-image: url('../images/story/movie/vennila-kabadi-kuzhu-5.webp') !important; }
 .placeholder-movie-6 { background-image: url('../images/story/movie/jeeva-6.webp') !important; }
+.placeholder-movie-7 { background-image: url('../images/story/movie/Porkkalam-7.webp') !important; }
 
 @media (max-width: 767px) {
     .md-field {
