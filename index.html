@@ -522,7 +522,7 @@
                             <li data-item="fresh-ghee-250-ml"><span class="menu-item-name">Pure Coffee</span><span class="menu-dots"></span><span class="menu-price">₹380</span></li>
                             <li data-item="fresh-coffee-powder-250-g"><span class="menu-item-name">Coffee powder (250 g)</span><span class="menu-dots"></span><span class="menu-price">₹320</span></li>
                             <li data-item="fresh-tea-powder-250-g"><span class="menu-item-name">Tea powder (250 g)</span><span class="menu-dots"></span><span class="menu-price">₹180</span></li>
-                            <li data-item="fresh-seasonal-fruit-and-veg"><span class="menu-item-name">Seasonal fruit &amp; veg</span><span class="menu-dots"></span><span class="menu-price">Market rate</span></li>
+                            <li data-item="fresh-seasonal-fruit-and-veg"><span class="menu-item-name">Seasonal fruit &amp; veg</span><span class="menu-dots"></span><span class="menu-price">Market Price</span></li>
                         </ul>
                     </div>
                 </div>
@@ -645,31 +645,60 @@
                             </span>
                         </button>
                     </article>
-                    <article class="product-card" tabindex="0" role="button" aria-haspopup="dialog" data-id="prod-2" data-img="images/products/2-70-30.webp" data-name="70/30 Coffee Blend">
-                        <div class="product-img-wrap"><img alt="Forest Cafe 70/30 Coffee Blend" loading="lazy" decoding="async" src="images/products/2-70-30.webp" /></div>
-                        <h3 class="product-title">70/30 Coffee Blend</h3>
-                        <p class="product-weight">Balanced and aromatic</p>
-                        <p class="product-price" data-price-for="prod-2" hidden></p>
-                        <p class="product-desc">A balanced blend crafted for a smooth, aromatic cup with the rich body and character of freshly roasted coffee.</p>
-                        <button class="cta-pill-btn" type="button" aria-label="Select &amp; order 70/30 Coffee Blend">
-                            <span class="cta-shine" aria-hidden="true"></span>
-                            <span class="cta-label">Select &amp; order</span>
-                            <span class="cta-icon-wrap" aria-hidden="true">
-                                <!-- Shopping Bag Icon -->
-                                <svg class="cta-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-                                    <path d="M3 6h18" />
-                                    <path d="M16 10a4 4 0 0 1-8 0" />
-                                </svg>
-                            </span>
-                        </button>
-                    </article>
+
+<article class="product-card" tabindex="0" role="button"
+    aria-haspopup="dialog"
+    data-id="prod-2"
+    data-img="images/products/2-70-30.webp"
+    data-name="70/30 Coffee Blend"
+    data-variants="100 g|200 g">
+
+    <div class="product-img-wrap">
+        <img
+            alt="Forest Cafe 70/30 Coffee Blend"
+            loading="lazy"
+            decoding="async"
+            src="images/products/2-70-30.webp"
+        />
+    </div>
+
+    <h3 class="product-title">70/30 Coffee Blend</h3>
+
+    <p class="product-weight">100 g &amp; 200 g</p>
+
+    <p class="product-price" data-price-for="prod-2" hidden></p>
+
+    <p class="product-desc">
+        A balanced blend crafted for a smooth, aromatic cup
+        with the rich body and character of freshly roasted coffee.
+    </p>
+
+    <button class="cta-pill-btn" type="button"
+        aria-label="Select &amp; order 70/30 Coffee Blend">
+
+        <span class="cta-shine" aria-hidden="true"></span>
+        <span class="cta-label">Select &amp; order</span>
+
+        <span class="cta-icon-wrap" aria-hidden="true">
+            <svg class="cta-icon-svg" viewBox="0 0 24 24"
+                width="16" height="16" fill="none"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                <path d="M3 6h18" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+        </span>
+    </button>
+</article>
+
                     <article class="product-card" tabindex="0" role="button" aria-haspopup="dialog" data-id="prod-4" data-img="images/products/4-tea-powder.webp" data-name="Tea Dust">
                         <div class="product-img-wrap"><img alt="Forest Cafe Tea Dust" loading="lazy" decoding="async" src="images/products/4-tea-powder.webp" /></div>
                         <h3 class="product-title">Tea Powder</h3>
                         <p class="product-weight">Refreshing everyday tea</p>
                         <p class="product-price" data-price-for="prod-4" hidden></p>
                         <p class="product-desc">Fine tea dust selected for a rich colour, refreshing aroma and a comforting cup of everyday tea.</p>
+        
                         <button class="cta-pill-btn" type="button" aria-label="Select &amp; order Tea Dust">
                             <span class="cta-shine" aria-hidden="true"></span>
                             <span class="cta-label">Select &amp; order</span>

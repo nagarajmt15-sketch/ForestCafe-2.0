@@ -54,7 +54,7 @@
   // `sizes` must match the data-variants="400 g|700 g" of that card: each size gets its own price.
   var PRODUCTS = [
     { id: 'prod-1', name: 'Pure Coffee' },
-    { id: 'prod-2', name: '70/30 Coffee Blend' },
+    { id: 'prod-2', name: '70/30 Coffee Blend', sizes: ['100 g', '200 g'] },
     { id: 'prod-4', name: 'Tea Dust' },
     { id: 'prod-5', name: 'Honey', sizes: ['400 g', '700 g'] },
     { id: 'prod-6', name: 'Curry Leaf Powder' },
@@ -308,7 +308,7 @@
         {
           "id": "fresh-seasonal-fruit-and-veg",
           "name": "Seasonal fruit & veg",
-          "price": "Market rate"
+          "price": "Market Price"
         }
       ]
     }
@@ -318,7 +318,7 @@
   function formatPrice(v) {
     v = String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, '').trim().slice(0, 20);
     if (!v) return '';
-    return /^\d+(\.\d{1,2})?$/.test(v) ? '\u20b9' + v : v;   // "25" -> "₹25", "Market rate" stays
+    return /^\d+(\.\d{1,2})?$/.test(v) ? '\u20b9' + v : v;   // "25" -> "₹25", "Market Price" stays
   }
   function priceNum(s) {
     var m = /^\u20b9\s*(\d+(?:\.\d{1,2})?)$/.exec(String(s || '').trim());
