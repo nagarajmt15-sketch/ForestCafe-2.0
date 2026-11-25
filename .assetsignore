@@ -1,0 +1,13 @@
+# Files that must NOT be publicly served by Cloudflare
+.git
+.gitignore
+.firebaserc
+firebase.json
+firestore.rules
+README-SETUP.md
+dev-server.js
+wrangler.jsonc
+.assetsignore
+node_modules
+*.log
+*.zip
